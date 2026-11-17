@@ -1,0 +1,343 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10172B">
+
+    <title>coreI — Ideas Have a Place</title>
+
+    <link rel="stylesheet" href="./main.css">
+    <script type="module" src="./main.js"></script>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+
+    <header class="topbar">
+
+        <a href="./main.html" class="brand">
+            core<span>I</span>
+        </a>
+
+        <button
+            class="notification-button"
+            id="notificationButton"
+            aria-label="Notifications">
+            ♧
+        </button>
+
+    </header>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main-container">
+
+
+        <!-- HOME PAGE -->
+
+        <section id="homeSection" class="page-section active">
+
+            <div class="welcome-section">
+
+                <p class="eyebrow">YOUR CREATIVE SPACE</p>
+
+                <h1>Ideas have a place.</h1>
+
+                <p class="welcome-description">
+                    Welcome to a community where meaningful
+                    thoughts become possibilities.
+                </p>
+
+            </div>
+
+
+            <!-- WELCOME CARD -->
+
+            <div class="welcome-card">
+
+                <p class="card-label">WELCOME TO COREI</p>
+
+                <h2>
+                    Think freely.<br>
+                    Share meaningfully.
+                </h2>
+
+                <p>
+                    Discover ideas, explore perspectives and
+                    become part of something meaningful.
+                </p>
+
+            </div>
+
+
+            <!-- COMMUNITY UPDATES -->
+
+            <section class="content-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <p class="eyebrow">STAY CONNECTED</p>
+                        <h2>Community updates</h2>
+                    </div>
+
+                </div>
+
+                <div id="announcementsList" class="announcements-list">
+
+                    <div class="empty-card">
+
+                        <div class="empty-icon">✦</div>
+
+                        <h3>Loading updates...</h3>
+
+                        <p>
+                            Checking the latest coreI announcements.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- FEATURED IDEAS -->
+
+            <section class="content-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <p class="eyebrow">EXPLORE CREATIVITY</p>
+                        <h2>Featured ideas</h2>
+                    </div>
+
+                    <button
+                        class="text-button"
+                        id="exploreIdeasButton">
+                        Explore SI →
+                    </button>
+
+                </div>
+
+                <div id="featuredIdeasList">
+
+                    <div class="empty-card">
+
+                        <div class="empty-icon">✧</div>
+
+                        <h3>Ideas are waiting</h3>
+
+                        <p>
+                            Interesting community ideas will
+                            be featured here.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- COMMUNITY GUIDELINES -->
+
+            <section class="guidelines-card">
+
+                <p class="eyebrow">OUR COMMUNITY</p>
+
+                <h2>Think with respect.</h2>
+
+                <p>
+                    Share meaningful ideas, respect different
+                    perspectives and help make coreI a welcoming space.
+                </p>
+
+            </section>
+
+        </section>
+
+
+        <!-- SHARE IDEAS PAGE -->
+
+        <section id="ideasSection" class="page-section" hidden>
+
+            <div class="welcome-section">
+
+                <p class="eyebrow">SI — SHARE IDEAS</p>
+
+                <h1>Every idea matters.</h1>
+
+                <p class="welcome-description">
+                    Your thoughts could inspire something
+                    meaningful. Share them with the community.
+                </p>
+
+            </div>
+
+
+            <!-- CREATE IDEA -->
+
+            <section class="content-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <p class="eyebrow">YOUR NEXT THOUGHT</p>
+                        <h2>Share an idea</h2>
+                    </div>
+
+                </div>
+
+                <div class="idea-form-card">
+
+                    <form id="ideaForm">
+
+                        <div class="form-group">
+
+                            <label for="ideaTitle">
+                                Give your idea a title
+                            </label>
+
+                            <input
+                                type="text"
+                                id="ideaTitle"
+                                name="title"
+                                placeholder="What is your idea about?"
+                                maxlength="120"
+                                minlength="3"
+                                required>
+
+                            <small>
+                                Maximum 120 characters.
+                            </small>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="ideaContent">
+                                Explain your idea
+                            </label>
+
+                            <textarea
+                                id="ideaContent"
+                                name="content"
+                                placeholder="Describe your thought, plan or creative idea..."
+                                rows="6"
+                                minlength="10"
+                                maxlength="5000"
+                                required></textarea>
+
+                            <small>
+                                Write at least 10 characters.
+                                Maximum 5,000 characters.
+                            </small>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            id="publishIdeaButton"
+                            class="publish-button">
+
+                            <span>✧</span>
+                            Publish idea
+
+                        </button>
+
+                        <p
+                            id="ideaFormMessage"
+                            class="form-message"
+                            role="status"
+                            aria-live="polite">
+                        </p>
+
+                    </form>
+
+                </div>
+
+            </section>
+
+
+            <!-- COMMUNITY IDEA FEED -->
+
+            <section class="content-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <p class="eyebrow">COMMUNITY CREATIVITY</p>
+                        <h2>Explore ideas</h2>
+                    </div>
+
+                </div>
+
+                <div id="ideasList" aria-live="polite">
+
+                    <div class="empty-card">
+
+                        <div class="empty-icon">✧</div>
+
+                        <h3>Loading ideas...</h3>
+
+                        <p>
+                            Discover what the coreI community
+                            is thinking about.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+
+    <!-- BOTTOM NAVIGATION -->
+
+    <nav class="bottom-navigation">
+
+        <a href="./main.html"
+           class="nav-button active">
+
+            <span class="nav-icon">⌂</span>
+            <span>Home</span>
+
+        </a>
+
+
+        <button
+            type="button"
+            class="nav-button"
+            data-page="ideasSection">
+
+            <span class="nav-icon">✧</span>
+            <span>Share Ideas</span>
+
+        </button>
+
+
+        <a href="./profile.html"
+           class="nav-button">
+
+            <span class="nav-icon">◉</span>
+            <span>Profile</span>
+
+        </a>
+
+    </nav>
+
+</body>
+</html>

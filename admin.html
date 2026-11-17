@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard — coreI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./admin.css">
+    <script type="module" src="./admin.js"></script>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+
+    <header class="admin-header">
+
+        <a href="./index.html" class="logo">
+            core<span>I</span>
+        </a>
+
+        <div class="header-actions">
+
+            <span class="admin-label">ADMIN CONTROL</span>
+
+            <button id="logoutButton" class="logout-button">
+                Sign out
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <main class="admin-container">
+
+        <!-- WELCOME -->
+
+        <section class="welcome-section">
+
+            <span class="eyebrow">YOUR CONTROL ROOM</span>
+
+            <h1>
+                Welcome, <span>Administrator.</span>
+            </h1>
+
+            <p>
+                Manage membership requests and keep the coreI community trusted.
+            </p>
+
+        </section>
+
+
+        <!-- FEATURE ANNOUNCEMENTS -->
+
+        <section class="announcement-section">
+
+            <div class="section-top">
+
+                <div>
+                    <span class="eyebrow">COMMUNITY COMMUNICATION</span>
+                    <h2>Feature announcements</h2>
+                </div>
+
+            </div>
+
+
+            <div class="announcement-form-card">
+
+                <div class="announcement-intro">
+
+                    <span class="announcement-icon">✦</span>
+
+                    <div>
+                        <h3>Share what's new</h3>
+
+                        <p>
+                            Tell members about new coreI features
+                            and ask what they would like to see next.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <form id="announcementForm">
+
+                    <!-- FEATURE TITLE -->
+
+                    <div class="form-group">
+
+                        <label for="announcementTitle">
+                            Feature title
+                        </label>
+
+                        <input
+                            type="text"
+                            id="announcementTitle"
+                            placeholder="Example: Profile customization"
+                            maxlength="100"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- FEATURE DESCRIPTION -->
+
+                    <div class="form-group">
+
+                        <label for="announcementDescription">
+                            Feature description
+                        </label>
+
+                        <textarea
+                            id="announcementDescription"
+                            rows="4"
+                            maxlength="2000"
+                            placeholder="Explain what's new and how members can use it..."
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- MEMBER QUESTION -->
+
+                    <div class="form-group">
+
+                        <label for="announcementQuestion">
+                            Ask members for suggestions
+                        </label>
+
+                        <textarea
+                            id="announcementQuestion"
+                            rows="3"
+                            maxlength="500"
+                            placeholder="Example: What feature should we build next?"
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- MESSAGE -->
+
+                    <p
+                        id="announcementMessage"
+                        class="announcement-message"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+
+
+                    <!-- PUBLISH BUTTON -->
+
+                    <button
+                        type="submit"
+                        id="publishAnnouncementButton"
+                        class="publish-button"
+                    >
+                        Publish announcement
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+        <!-- MEMBERSHIP STATISTICS -->
+
+        <section class="stats-grid">
+
+            <article class="stat-card">
+
+                <span class="stat-icon">◷</span>
+
+                <p>Pending requests</p>
+
+                <strong id="pendingCount">—</strong>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <span class="stat-icon">✓</span>
+
+                <p>Approved members</p>
+
+                <strong id="approvedCount">—</strong>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <span class="stat-icon">×</span>
+
+                <p>Rejected requests</p>
+
+                <strong id="rejectedCount">—</strong>
+
+            </article>
+
+        </section>
+
+
+        <!-- MEMBERSHIP MANAGEMENT -->
+
+        <section class="requests-section">
+
+            <div class="section-top">
+
+                <div>
+                    <span class="eyebrow">MEMBERSHIP MANAGEMENT</span>
+                    <h2>Member requests</h2>
+                </div>
+
+                <button id="refreshButton" class="refresh-button">
+                    ↻ Refresh
+                </button>
+
+            </div>
+
+
+            <!-- FILTER BUTTONS -->
+
+            <div class="filter-tabs" role="group" aria-label="Filter members">
+
+                <button class="filter-button active" data-filter="pending">
+                    Pending
+                </button>
+
+                <button class="filter-button" data-filter="approved">
+                    Approved
+                </button>
+
+                <button class="filter-button" data-filter="rejected">
+                    Rejected
+                </button>
+
+                <button class="filter-button" data-filter="all">
+                    All
+                </button>
+
+            </div>
+
+
+            <!-- DASHBOARD MESSAGE -->
+
+            <p
+                id="dashboardMessage"
+                class="dashboard-message"
+                role="status"
+                aria-live="polite"
+            >
+                Loading member requests...
+            </p>
+
+
+            <!-- MEMBERS LIST -->
+
+            <div id="membersList" class="members-list"></div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+
+        <footer class="admin-footer">
+
+            <p>coreI — Ideas have a place.</p>
+
+            <a href="./index.html">
+                View public website ↗
+            </a>
+
+        </footer>
+
+    </main>
+
+</body>
+</html>

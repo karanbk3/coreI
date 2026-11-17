@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10172B">
+
+    <title>Settings — coreI</title>
+
+    <link rel="stylesheet" href="./main.css">
+    <link rel="stylesheet" href="./settings.css">
+
+    <script type="module" src="./settings.js"></script>
+</head>
+
+<body>
+
+    <header class="topbar">
+        <a href="./main.html" class="brand">core<span>I</span></a>
+        <a href="./profile.html" class="back-button">← Profile</a>
+    </header>
+
+    <main class="settings-container">
+
+        <section class="settings-heading">
+            <p class="eyebrow">MAKE IT YOURS</p>
+            <h1>Settings</h1>
+            <p>Manage your profile and account preferences.</p>
+        </section>
+
+        <!-- PROFILE SETTINGS -->
+
+        <section class="settings-card">
+
+            <div class="settings-section-heading">
+                <span class="settings-icon">◉</span>
+                <div>
+                    <h2>Personal profile</h2>
+                    <p>Update how other members see you.</p>
+                </div>
+            </div>
+
+            <div class="avatar-upload-area">
+
+                <img
+                    id="avatarPreview"
+                    src="./images/default-profile.png"
+                    alt="Profile preview"
+                >
+
+                <div class="avatar-upload-info">
+                    <strong>Profile picture</strong>
+                    <p>JPG, PNG or WEBP. Maximum 5 MB.</p>
+
+                    <label for="avatarInput" class="upload-button">
+                        Choose photo
+                    </label>
+
+                    <input
+                        type="file"
+                        id="avatarInput"
+                        accept="image/png,image/jpeg,image/webp"
+                        hidden
+                    >
+                </div>
+
+            </div>
+
+            <form id="profileSettingsForm">
+
+                <label for="displayName">Display name</label>
+                <input
+                    type="text"
+                    id="displayName"
+                    maxlength="40"
+                    placeholder="Enter your name"
+                    required
+                >
+
+                <label for="bio">About you</label>
+                <textarea
+                    id="bio"
+                    maxlength="250"
+                    rows="4"
+                    placeholder="Write a short introduction..."
+                ></textarea>
+
+                <p class="input-hint">Maximum 250 characters.</p>
+
+                <button type="submit" id="saveProfileButton">
+                    Save profile
+                </button>
+
+                <p id="profileMessage" class="settings-message"></p>
+
+            </form>
+
+        </section>
+
+        <!-- EMAIL SETTINGS -->
+
+        <section class="settings-card">
+
+            <div class="settings-section-heading">
+                <span class="settings-icon">✉</span>
+                <div>
+                    <h2>Email address</h2>
+                    <p>Change the email connected to your account.</p>
+                </div>
+            </div>
+
+            <form id="emailSettingsForm">
+
+                <label for="newEmail">New email address</label>
+                <input
+                    type="email"
+                    id="newEmail"
+                    placeholder="Enter your new email"
+                    required
+                >
+
+                <button type="submit" id="updateEmailButton">
+                    Update email
+                </button>
+
+                <p id="emailMessage" class="settings-message"></p>
+
+            </form>
+
+        </section>
+
+        <!-- PASSWORD SETTINGS -->
+
+        <section class="settings-card">
+
+            <div class="settings-section-heading">
+                <span class="settings-icon">🔒</span>
+                <div>
+                    <h2>Password and security</h2>
+                    <p>Keep your account secure.</p>
+                </div>
+            </div>
+
+            <form id="passwordSettingsForm">
+
+                <label for="newPassword">New password</label>
+                <input
+                    type="password"
+                    id="newPassword"
+                    minlength="8"
+                    placeholder="Enter a new password"
+                    required
+                >
+
+                <label for="confirmPassword">Confirm new password</label>
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    minlength="8"
+                    placeholder="Enter the password again"
+                    required
+                >
+
+                <button type="submit" id="updatePasswordButton">
+                    Update password
+                </button>
+
+                <p id="passwordMessage" class="settings-message"></p>
+
+            </form>
+
+        </section>
+
+        <!-- ACCOUNT INFORMATION -->
+
+        <section class="settings-card account-card">
+
+            <div class="settings-section-heading">
+                <span class="settings-icon">ⓘ</span>
+                <div>
+                    <h2>Account information</h2>
+                    <p>Your membership details.</p>
+                </div>
+            </div>
+
+            <div class="account-info-row">
+                <span>Member ID</span>
+                <strong id="settingsMemberCode">Loading...</strong>
+            </div>
+
+            <div class="account-info-row">
+                <span>Membership status</span>
+                <strong id="settingsMemberStatus">Loading...</strong>
+            </div>
+
+            <p class="input-hint">
+                Member ID and membership status cannot be changed here.
+            </p>
+
+        </section>
+
+        <!-- SIGN OUT -->
+
+        <section class="settings-card logout-card">
+
+            <div>
+                <h2>Sign out</h2>
+                <p>Sign out of your coreI account on this device.</p>
+            </div>
+
+            <button type="button" id="logoutButton" class="logout-button">
+                Sign out
+            </button>
+
+            <p id="logoutMessage" class="settings-message"></p>
+
+        </section>
+
+    </main>
+
+    <nav class="bottom-navigation">
+
+        <a href="./main.html" class="nav-button">
+            <span class="nav-icon">⌂</span>
+            <span>Home</span>
+        </a>
+
+        <a href="./main.html" class="nav-button">
+            <span class="nav-icon">✧</span>
+            <span>Share Ideas</span>
+        </a>
+
+        <a href="./profile.html" class="nav-button">
+            <span class="nav-icon">◉</span>
+            <span>Profile</span>
+        </a>
+
+    </nav>
+
+</body>
+</html>

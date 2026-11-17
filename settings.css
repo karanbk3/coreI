@@ -1,0 +1,643 @@
+
+/* =========================================
+   coreI — PREMIUM SETTINGS DESIGN
+========================================= */
+
+:root {
+    --settings-bg: #10172B;
+    --settings-card: #18233B;
+    --settings-card-light: #202D49;
+    --settings-purple: #A78BFA;
+    --settings-purple-light: #C4B5FD;
+    --settings-white: #FFFFFF;
+    --settings-muted: #9BA7BD;
+    --settings-border: rgba(255, 255, 255, 0.09);
+    --settings-radius: 22px;
+}
+
+/* =========================================
+   PAGE BACKGROUND
+========================================= */
+
+body {
+    background: var(--settings-bg);
+}
+
+.settings-container {
+    width: min(100% - 36px, 760px);
+    margin: 0 auto;
+    padding: 35px 0 120px;
+}
+
+/* =========================================
+   PAGE HEADING
+========================================= */
+
+.settings-heading {
+    margin-bottom: 32px;
+    padding: 12px 4px;
+}
+
+.settings-heading .eyebrow {
+    color: var(--settings-purple);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    margin-bottom: 12px;
+}
+
+.settings-heading h1 {
+    color: var(--settings-white);
+    font-size: clamp(30px, 6vw, 42px);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    margin: 0 0 10px;
+}
+
+.settings-heading > p:last-child {
+    color: var(--settings-muted);
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0;
+    max-width: 450px;
+}
+
+/* =========================================
+   BACK BUTTON
+========================================= */
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    border-radius: 12px;
+    border: 1px solid var(--settings-border);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--settings-white);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.25s ease;
+}
+
+.back-button:hover {
+    background: rgba(167, 139, 250, 0.15);
+    border-color: var(--settings-purple);
+}
+
+/* =========================================
+   SETTINGS CARDS
+========================================= */
+
+.settings-card {
+    position: relative;
+    overflow: hidden;
+    padding: 25px;
+    margin-bottom: 20px;
+
+    background: linear-gradient(
+        145deg,
+        rgba(32, 45, 73, 0.95),
+        rgba(24, 35, 59, 0.98)
+    );
+
+    border: 1px solid var(--settings-border);
+    border-radius: var(--settings-radius);
+
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.13);
+
+    transition:
+        border-color 0.25s ease,
+        transform 0.25s ease;
+}
+
+.settings-card:hover {
+    border-color: rgba(167, 139, 250, 0.25);
+}
+
+/* =========================================
+   SECTION HEADINGS
+========================================= */
+
+.settings-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.settings-icon {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 16px;
+
+    background: rgba(167, 139, 250, 0.13);
+    border: 1px solid rgba(167, 139, 250, 0.18);
+
+    color: var(--settings-purple-light);
+    font-size: 21px;
+}
+
+.settings-section-heading h2 {
+    color: var(--settings-white);
+    font-size: 17px;
+    font-weight: 750;
+    margin: 0 0 6px;
+    letter-spacing: -0.3px;
+}
+
+.settings-section-heading p {
+    color: var(--settings-muted);
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* =========================================
+   PROFILE PHOTO AREA
+========================================= */
+
+.avatar-upload-area {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+
+    padding: 20px;
+    margin-bottom: 26px;
+
+    border-radius: 18px;
+
+    background: rgba(12, 19, 37, 0.48);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+#avatarPreview {
+    width: 104px;
+    height: 104px;
+    min-width: 104px;
+
+    object-fit: cover;
+    border-radius: 50%;
+
+    border: 4px solid rgba(167, 139, 250, 0.75);
+
+    background: var(--settings-card-light);
+
+    box-shadow:
+        0 0 0 6px rgba(167, 139, 250, 0.08),
+        0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.avatar-upload-info {
+    min-width: 0;
+}
+
+.avatar-upload-info strong {
+    display: block;
+    color: var(--settings-white);
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+
+.avatar-upload-info p {
+    color: var(--settings-muted);
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 0 0 13px;
+}
+
+/* Upload button */
+
+.upload-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 10px 16px;
+
+    background: rgba(167, 139, 250, 0.14);
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    border-radius: 11px;
+
+    color: var(--settings-purple-light);
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.upload-button:hover {
+    background: var(--settings-purple);
+    color: #10172B;
+    transform: translateY(-2px);
+}
+
+/* =========================================
+   FORM LABELS
+========================================= */
+
+.settings-card label:not(.upload-button) {
+    display: block;
+
+    color: #E5E9F2;
+    font-size: 13px;
+    font-weight: 700;
+
+    margin: 20px 0 9px;
+}
+
+/* =========================================
+   INPUT FIELDS
+========================================= */
+
+.settings-card input:not([type="file"]),
+.settings-card textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 14px 16px;
+
+    background: rgba(10, 17, 33, 0.65);
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 13px;
+
+    color: var(--settings-white);
+
+    font-family: inherit;
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.25s ease,
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.settings-card input:not([type="file"]) {
+    min-height: 49px;
+}
+
+.settings-card textarea {
+    min-height: 115px;
+    resize: vertical;
+    line-height: 1.7;
+}
+
+.settings-card input:focus,
+.settings-card textarea:focus {
+    background: rgba(10, 17, 33, 0.9);
+    border-color: var(--settings-purple);
+
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.12);
+}
+
+.settings-card input::placeholder,
+.settings-card textarea::placeholder {
+    color: #748198;
+    opacity: 1;
+}
+
+/* =========================================
+   SMALL HELPER TEXT
+========================================= */
+
+.input-hint {
+    color: var(--settings-muted);
+    font-size: 11px;
+    line-height: 1.6;
+    margin-top: 9px;
+}
+
+/* =========================================
+   PRIMARY BUTTONS
+========================================= */
+
+.settings-card button:not(.logout-button) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    min-height: 49px;
+
+    margin-top: 22px;
+    padding: 13px 18px;
+
+    border: none;
+    border-radius: 13px;
+
+    background: linear-gradient(
+        110deg,
+        #B49BFF,
+        #9475F0
+    );
+
+    color: #10172B;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow: 0 7px 20px rgba(139, 108, 232, 0.18);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.settings-card button:not(.logout-button):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(139, 108, 232, 0.28);
+}
+
+.settings-card button:not(.logout-button):active {
+    transform: scale(0.98);
+}
+
+.settings-card button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* =========================================
+   STATUS MESSAGES
+========================================= */
+
+.settings-message {
+    min-height: 18px;
+    margin: 13px 0 0;
+
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.6;
+
+    overflow-wrap: anywhere;
+}
+
+/* =========================================
+   ACCOUNT INFORMATION
+========================================= */
+
+.account-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    padding: 17px 2px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.account-info-row:last-of-type {
+    border-bottom: none;
+}
+
+.account-info-row span {
+    color: var(--settings-muted);
+    font-size: 13px;
+}
+
+.account-info-row strong {
+    color: var(--settings-white);
+    font-size: 13px;
+    font-weight: 700;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+/* =========================================
+   LOGOUT SECTION
+========================================= */
+
+.logout-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.logout-card > div {
+    flex: 1;
+}
+
+.logout-card h2 {
+    color: var(--settings-white);
+    font-size: 16px;
+    margin: 0 0 7px;
+}
+
+.logout-card p {
+    color: var(--settings-muted);
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.logout-button {
+    min-width: 110px;
+    padding: 12px 17px;
+
+    border: 1px solid rgba(248, 113, 113, 0.35);
+    border-radius: 12px;
+
+    background: rgba(248, 113, 113, 0.10);
+
+    color: #FCA5A5;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.logout-button:hover {
+    background: rgba(248, 113, 113, 0.20);
+    border-color: #F87171;
+}
+
+/* =========================================
+   TOPBAR ADJUSTMENT
+========================================= */
+
+.settings-container + .bottom-navigation {
+    z-index: 100;
+}
+
+/* =========================================
+   TABLET AND DESKTOP
+========================================= */
+
+@media (min-width: 768px) {
+
+    .settings-container {
+        padding-top: 48px;
+    }
+
+    .settings-heading {
+        margin-bottom: 38px;
+    }
+
+    .settings-card {
+        padding: 30px;
+        margin-bottom: 23px;
+    }
+
+    .settings-section-heading {
+        margin-bottom: 29px;
+    }
+
+    .avatar-upload-area {
+        padding: 24px;
+    }
+}
+
+/* =========================================
+   MOBILE PHONE DESIGN
+========================================= */
+
+@media (max-width: 520px) {
+
+    .settings-container {
+        width: calc(100% - 26px);
+        padding-top: 23px;
+        padding-bottom: 110px;
+    }
+
+    .settings-heading {
+        margin-bottom: 23px;
+    }
+
+    .settings-heading h1 {
+        font-size: 31px;
+    }
+
+    .settings-heading > p:last-child {
+        font-size: 13px;
+    }
+
+    .settings-card {
+        padding: 19px 16px;
+        margin-bottom: 15px;
+        border-radius: 19px;
+    }
+
+    .settings-section-heading {
+        gap: 12px;
+        margin-bottom: 21px;
+    }
+
+    .settings-icon {
+        width: 43px;
+        height: 43px;
+        min-width: 43px;
+        border-radius: 14px;
+    }
+
+    .settings-section-heading h2 {
+        font-size: 15px;
+    }
+
+    .settings-section-heading p {
+        font-size: 11px;
+    }
+
+    .avatar-upload-area {
+        gap: 15px;
+        padding: 14px 12px;
+        border-radius: 15px;
+    }
+
+    #avatarPreview {
+        width: 78px;
+        height: 78px;
+        min-width: 78px;
+    }
+
+    .avatar-upload-info strong {
+        font-size: 13px;
+    }
+
+    .avatar-upload-info p {
+        font-size: 10px;
+    }
+
+    .upload-button {
+        padding: 9px 12px;
+        font-size: 11px;
+    }
+
+    .settings-card input:not([type="file"]),
+    .settings-card textarea {
+        font-size: 13px;
+        padding: 13px;
+    }
+
+    .account-info-row {
+        padding: 15px 0;
+    }
+
+    .account-info-row span,
+    .account-info-row strong {
+        font-size: 12px;
+    }
+
+    .logout-card {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .logout-button {
+        width: 100%;
+        min-height: 46px;
+    }
+}
+
+/* =========================================
+   SMALL PHONES
+========================================= */
+
+@media (max-width: 360px) {
+
+    .avatar-upload-area {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    #avatarPreview {
+        width: 85px;
+        height: 85px;
+    }
+
+    .settings-card {
+        padding: 16px 13px;
+    }
+
+    .account-info-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .account-info-row strong {
+        text-align: left;
+    }
+}

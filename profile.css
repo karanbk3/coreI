@@ -1,0 +1,247 @@
+
+/* =========================================
+   coreI — PROFILE PAGE DESIGN
+========================================= */
+
+/* 1. PROFILE PAGE */
+
+.profile-page {
+    padding-top: 15px;
+}
+
+.profile-page > h1 {
+    font-size: clamp(30px, 7vw, 42px);
+    letter-spacing: -1.5px;
+    margin-bottom: 25px;
+}
+
+
+/* 2. SETTINGS BUTTON */
+
+.profile-settings-button {
+    padding: 10px 15px;
+    border: 1px solid #E9E8EF;
+    border-radius: 12px;
+    background: #FFFFFF;
+    color: #263B5B;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* 3. MAIN PROFILE CARD */
+
+.profile-card {
+    padding: 30px 20px;
+    border: 1px solid #E9E8EF;
+    border-radius: 22px;
+    background: #FFFFFF;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(16, 23, 43, 0.05);
+}
+
+.profile-photo-area {
+    width: 112px;
+    height: 112px;
+    margin: 0 auto 18px;
+    padding: 4px;
+    border-radius: 50%;
+    background: linear-gradient(
+        135deg,
+        #A78BFA,
+        #263B5B
+    );
+}
+
+.profile-photo-area img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 4px solid #FFFFFF;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #F1EDFC;
+}
+
+.profile-card h2 {
+    margin-bottom: 7px;
+    font-size: 23px;
+    color: #10172B;
+}
+
+#profileMemberCode {
+    color: #927BCB;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+#profileBio {
+    max-width: 400px;
+    margin: 18px auto;
+    color: #858B9A;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+
+/* 4. EDIT PROFILE BUTTON */
+
+.edit-profile-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 23px;
+    margin-top: 5px;
+    border-radius: 12px;
+    background: #263B5B;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 700;
+    transition: background 0.2s ease;
+}
+
+.edit-profile-button:hover {
+    background: #514478;
+}
+
+
+/* 5. PERSONAL INFORMATION */
+
+.profile-information-card {
+    padding: 5px 20px;
+    border: 1px solid #E9E8EF;
+    border-radius: 17px;
+    background: #FFFFFF;
+}
+
+.profile-info-row {
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    border-bottom: 1px solid #F0EFF4;
+}
+
+.profile-info-row:last-child {
+    border-bottom: none;
+}
+
+.profile-info-row span {
+    color: #858B9A;
+    font-size: 13px;
+}
+
+.profile-info-row strong {
+    color: #263B5B;
+    font-size: 13px;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+
+/* 6. MEMBER IDEAS */
+
+#myIdeasList {
+    display: grid;
+    gap: 15px;
+}
+
+#myIdeasList .idea-card {
+    padding: 20px;
+    border: 1px solid #E9E8EF;
+    border-radius: 17px;
+    background: #FFFFFF;
+}
+
+
+/* 7. MOBILE RESPONSIVE DESIGN */
+
+@media (max-width: 480px) {
+
+    .profile-card {
+        padding: 27px 17px;
+    }
+
+    .profile-photo-area {
+        width: 100px;
+        height: 100px;
+    }
+
+    .profile-card h2 {
+        font-size: 21px;
+    }
+
+    .profile-information-card {
+        padding: 5px 14px;
+    }
+
+    .profile-info-row {
+        gap: 10px;
+    }
+
+    .profile-info-row span,
+    .profile-info-row strong {
+        font-size: 12px;
+    }
+
+    .profile-settings-button {
+        padding: 9px 11px;
+        font-size: 12px;
+    }
+
+}
+
+
+/* 8. DESKTOP DESIGN */
+
+@media (min-width: 700px) {
+
+    .profile-page {
+        padding-top: 25px;
+    }
+
+    .profile-card {
+        padding: 40px;
+    }
+
+    .profile-information-card {
+        padding: 5px 25px;
+    }
+
+}/* ADMIN DASHBOARD BUTTON */
+
+.admin-dashboard-button {
+    width: 100%;
+    min-height: 50px;
+    margin-top: 14px;
+    padding: 12px 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    border: none;
+    border-radius: 13px;
+
+    background: linear-gradient(120deg, #263B5B, #8068BE);
+
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.admin-dashboard-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 18px rgba(16, 23, 43, 0.15);
+}
+
+.admin-dashboard-button[hidden] {
+    display: none;
+}

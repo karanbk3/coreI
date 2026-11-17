@@ -1,0 +1,246 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10172B">
+
+    <title>My Profile — coreI</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="./main.css">
+    <link rel="stylesheet" href="./profile.css">
+
+    <!-- Profile JavaScript -->
+    <script type="module" src="./profile.js"></script>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+
+    <header class="topbar">
+
+        <a href="./main.html" class="brand">
+            core<span>I</span>
+        </a>
+
+        <a href="./settings.html" class="profile-settings-button">
+            ⚙ Settings
+        </a>
+
+    </header>
+
+
+    <!-- MAIN PROFILE CONTENT -->
+
+    <main class="main-container">
+
+        <section class="profile-page">
+
+            <p class="eyebrow">YOUR PERSONAL SPACE</p>
+
+            <h1>My Profile</h1>
+
+
+            <!-- PROFILE CARD -->
+
+            <section class="profile-card">
+
+                <!-- Profile picture -->
+
+                <div class="profile-photo-area">
+
+                    <img
+                        id="profilePhoto"
+                        src="./images/default-profile.png"
+                        alt="Profile photo">
+
+                </div>
+
+
+                <!-- Member name -->
+
+                <h2 id="profileName">
+                    Loading profile...
+                </h2>
+
+
+                <!-- Member ID -->
+
+                <p id="profileMemberCode">
+                    Member ID
+                </p>
+
+
+                <!-- Member introduction -->
+
+                <p id="profileBio">
+                    Your personal introduction will appear here.
+                </p>
+
+
+                <!-- Edit profile -->
+
+                <a
+                    href="./settings.html"
+                    class="edit-profile-button">
+
+                    Edit Profile
+
+                </a>
+
+
+                <!-- ADMIN DASHBOARD
+                     Visible only to approved administrators -->
+
+                <button
+                    type="button"
+                    id="adminDashboardButton"
+                    class="admin-dashboard-button"
+                    hidden>
+
+                    <span>⚙</span>
+                    Admin Dashboard
+
+                </button>
+
+            </section>
+
+
+            <!-- PERSONAL INFORMATION -->
+
+            <section class="content-section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">ABOUT YOU</p>
+
+                        <h2>Personal information</h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="profile-information-card">
+
+                    <div class="profile-info-row">
+
+                        <span>Display name</span>
+
+                        <strong id="infoDisplayName">—</strong>
+
+                    </div>
+
+
+                    <div class="profile-info-row">
+
+                        <span>Member ID</span>
+
+                        <strong id="infoMemberCode">—</strong>
+
+                    </div>
+
+
+                    <div class="profile-info-row">
+
+                        <span>Membership</span>
+
+                        <strong id="infoStatus">—</strong>
+
+                    </div>
+
+
+                    <div class="profile-info-row">
+
+                        <span>Member since</span>
+
+                        <strong id="infoJoinedDate">—</strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- MEMBER IDEAS -->
+
+            <section class="content-section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">YOUR CREATIVITY</p>
+
+                        <h2>My shared ideas</h2>
+
+                    </div>
+
+                </div>
+
+
+                <div id="myIdeasList">
+
+                    <div class="empty-card">
+
+                        <div class="empty-icon">✧</div>
+
+                        <h3>Loading your ideas...</h3>
+
+                        <p>
+                            Your published ideas will appear here.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+
+    <!-- BOTTOM NAVIGATION -->
+
+    <nav class="bottom-navigation">
+
+        <a href="./main.html" class="nav-button">
+
+            <span class="nav-icon">⌂</span>
+
+            <span>Home</span>
+
+        </a>
+
+
+        <a href="./main.html" class="nav-button">
+
+            <span class="nav-icon">✧</span>
+
+            <span>Share Ideas</span>
+
+        </a>
+
+
+        <a href="./profile.html" class="nav-button active">
+
+            <span class="nav-icon">◉</span>
+
+            <span>Profile</span>
+
+        </a>
+
+    </nav>
+
+</body>
+
+</html>
