@@ -5,21 +5,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10172B">
+
+    <meta
+        name="description"
+        content="Manage the coreI community, members, ideas and announcements."
+    >
 
     <title>Admin Dashboard — coreI</title>
 
+    <!-- GOOGLE FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
 
+    <!-- ADMIN CSS -->
     <link rel="stylesheet" href="./admin.css">
+
+    <!-- ADMIN JAVASCRIPT -->
     <script type="module" src="./admin.js"></script>
 </head>
 
 <body>
 
-    <!-- HEADER -->
+    <!-- =================================
+         HEADER
+    ================================== -->
 
     <header class="admin-header">
 
@@ -29,9 +44,20 @@
 
         <div class="header-actions">
 
-            <span class="admin-label">ADMIN CONTROL</span>
+            <a href="./index.html" class="back-button">
+                <span aria-hidden="true">←</span>
+                Back
+            </a>
 
-            <button id="logoutButton" class="logout-button">
+            <span class="admin-label">
+                ADMIN CONTROL
+            </span>
+
+            <button
+                type="button"
+                id="logoutButton"
+                class="logout-button"
+            >
                 Sign out
             </button>
 
@@ -40,34 +66,147 @@
     </header>
 
 
+    <!-- =================================
+         MAIN DASHBOARD
+    ================================== -->
+
     <main class="admin-container">
 
-        <!-- WELCOME -->
+
+        <!-- =================================
+             WELCOME SECTION
+        ================================== -->
 
         <section class="welcome-section">
 
-            <span class="eyebrow">YOUR CONTROL ROOM</span>
+            <span class="eyebrow">
+                YOUR CONTROL ROOM
+            </span>
 
             <h1>
                 Welcome, <span>Administrator.</span>
             </h1>
 
             <p>
-                Manage membership requests and keep the coreI community trusted.
+                Manage your community, monitor activity
+                and keep coreI growing.
             </p>
 
         </section>
 
 
-        <!-- FEATURE ANNOUNCEMENTS -->
+        <!-- =================================
+             COMMUNITY OVERVIEW
+        ================================== -->
+
+        <section class="overview-section">
+
+            <div class="section-top">
+
+                <div>
+                    <span class="eyebrow">
+                        COMMUNITY OVERVIEW
+                    </span>
+
+                    <h2>
+                        Dashboard overview
+                    </h2>
+                </div>
+
+            </div>
+
+
+            <div class="overview-grid">
+
+                <!-- TOTAL MEMBERS -->
+
+                <article class="overview-card">
+
+                    <span class="overview-icon">
+                        👥
+                    </span>
+
+                    <p>
+                        Registered members
+                    </p>
+
+                    <strong id="totalMembersCount">
+                        —
+                    </strong>
+
+                    <span class="overview-description">
+                        Community members
+                    </span>
+
+                </article>
+
+
+                <!-- TOTAL IDEAS -->
+
+                <article class="overview-card">
+
+                    <span class="overview-icon">
+                        💡
+                    </span>
+
+                    <p>
+                        Community ideas
+                    </p>
+
+                    <strong id="totalIdeasCount">
+                        —
+                    </strong>
+
+                    <span class="overview-description">
+                        Ideas shared by members
+                    </span>
+
+                </article>
+
+
+                <!-- ANNOUNCEMENTS -->
+
+                <article class="overview-card">
+
+                    <span class="overview-icon">
+                        📢
+                    </span>
+
+                    <p>
+                        Published announcements
+                    </p>
+
+                    <strong id="publishedAnnouncementsCount">
+                        —
+                    </strong>
+
+                    <span class="overview-description">
+                        Community updates
+                    </span>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================
+             FEATURE ANNOUNCEMENTS
+        ================================== -->
 
         <section class="announcement-section">
 
             <div class="section-top">
 
                 <div>
-                    <span class="eyebrow">COMMUNITY COMMUNICATION</span>
-                    <h2>Feature announcements</h2>
+                    <span class="eyebrow">
+                        COMMUNITY COMMUNICATION
+                    </span>
+
+                    <h2>
+                        Feature announcements
+                    </h2>
                 </div>
 
             </div>
@@ -77,23 +216,29 @@
 
                 <div class="announcement-intro">
 
-                    <span class="announcement-icon">✦</span>
+                    <span class="announcement-icon">
+                        ✦
+                    </span>
 
                     <div>
-                        <h3>Share what's new</h3>
+
+                        <h3>
+                            Share what's new
+                        </h3>
 
                         <p>
-                            Tell members about new coreI features
-                            and ask what they would like to see next.
+                            Inform members about new coreI features,
+                            improvements and important community updates.
                         </p>
+
                     </div>
 
                 </div>
 
 
-                <form id="announcementForm">
+                <!-- ANNOUNCEMENT FORM -->
 
-                    <!-- FEATURE TITLE -->
+                <form id="announcementForm">
 
                     <div class="form-group">
 
@@ -104,6 +249,7 @@
                         <input
                             type="text"
                             id="announcementTitle"
+                            name="title"
                             placeholder="Example: Profile customization"
                             maxlength="100"
                             required
@@ -111,8 +257,6 @@
 
                     </div>
 
-
-                    <!-- FEATURE DESCRIPTION -->
 
                     <div class="form-group">
 
@@ -122,7 +266,8 @@
 
                         <textarea
                             id="announcementDescription"
-                            rows="4"
+                            name="description"
+                            rows="5"
                             maxlength="2000"
                             placeholder="Explain what's new and how members can use it..."
                             required
@@ -131,27 +276,6 @@
                     </div>
 
 
-                    <!-- MEMBER QUESTION -->
-
-                    <div class="form-group">
-
-                        <label for="announcementQuestion">
-                            Ask members for suggestions
-                        </label>
-
-                        <textarea
-                            id="announcementQuestion"
-                            rows="3"
-                            maxlength="500"
-                            placeholder="Example: What feature should we build next?"
-                            required
-                        ></textarea>
-
-                    </div>
-
-
-                    <!-- MESSAGE -->
-
                     <p
                         id="announcementMessage"
                         class="announcement-message"
@@ -159,8 +283,6 @@
                         aria-live="polite"
                     ></p>
 
-
-                    <!-- PUBLISH BUTTON -->
 
                     <button
                         type="submit"
@@ -177,80 +299,161 @@
         </section>
 
 
-        <!-- MEMBERSHIP STATISTICS -->
+        <!-- =================================
+             MEMBERSHIP STATISTICS
+        ================================== -->
 
-        <section class="stats-grid">
+        <section class="stats-section">
 
-            <article class="stat-card">
+            <div class="section-top">
 
-                <span class="stat-icon">◷</span>
+                <div>
+                    <span class="eyebrow">
+                        MEMBERSHIP STATUS
+                    </span>
 
-                <p>Pending requests</p>
+                    <h2>
+                        Membership statistics
+                    </h2>
+                </div>
 
-                <strong id="pendingCount">—</strong>
-
-            </article>
-
-
-            <article class="stat-card">
-
-                <span class="stat-icon">✓</span>
-
-                <p>Approved members</p>
-
-                <strong id="approvedCount">—</strong>
-
-            </article>
+            </div>
 
 
-            <article class="stat-card">
+            <div class="stats-grid">
 
-                <span class="stat-icon">×</span>
+                <!-- PENDING -->
 
-                <p>Rejected requests</p>
+                <article class="stat-card">
 
-                <strong id="rejectedCount">—</strong>
+                    <span class="stat-icon">
+                        ◷
+                    </span>
 
-            </article>
+                    <p>
+                        Pending requests
+                    </p>
+
+                    <strong id="pendingCount">
+                        —
+                    </strong>
+
+                </article>
+
+
+                <!-- APPROVED -->
+
+                <article class="stat-card">
+
+                    <span class="stat-icon">
+                        ✓
+                    </span>
+
+                    <p>
+                        Approved members
+                    </p>
+
+                    <strong id="approvedCount">
+                        —
+                    </strong>
+
+                </article>
+
+
+                <!-- REJECTED -->
+
+                <article class="stat-card">
+
+                    <span class="stat-icon">
+                        ×
+                    </span>
+
+                    <p>
+                        Rejected requests
+                    </p>
+
+                    <strong id="rejectedCount">
+                        —
+                    </strong>
+
+                </article>
+
+            </div>
 
         </section>
 
 
-        <!-- MEMBERSHIP MANAGEMENT -->
+        <!-- =================================
+             MEMBER MANAGEMENT
+        ================================== -->
 
         <section class="requests-section">
 
             <div class="section-top">
 
                 <div>
-                    <span class="eyebrow">MEMBERSHIP MANAGEMENT</span>
-                    <h2>Member requests</h2>
+
+                    <span class="eyebrow">
+                        MEMBERSHIP MANAGEMENT
+                    </span>
+
+                    <h2>
+                        Member requests
+                    </h2>
+
                 </div>
 
-                <button id="refreshButton" class="refresh-button">
+
+                <!-- REFRESH BUTTON -->
+
+                <button
+                    type="button"
+                    id="refreshButton"
+                    class="refresh-button"
+                >
                     ↻ Refresh
                 </button>
 
             </div>
 
 
-            <!-- FILTER BUTTONS -->
+            <!-- MEMBER FILTERS -->
 
-            <div class="filter-tabs" role="group" aria-label="Filter members">
+            <div
+                class="filter-tabs"
+                role="group"
+                aria-label="Filter members"
+            >
 
-                <button class="filter-button active" data-filter="pending">
+                <button
+                    type="button"
+                    class="filter-button active"
+                    data-filter="pending"
+                >
                     Pending
                 </button>
 
-                <button class="filter-button" data-filter="approved">
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-filter="approved"
+                >
                     Approved
                 </button>
 
-                <button class="filter-button" data-filter="rejected">
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-filter="rejected"
+                >
                     Rejected
                 </button>
 
-                <button class="filter-button" data-filter="all">
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-filter="all"
+                >
                     All
                 </button>
 
@@ -271,16 +474,23 @@
 
             <!-- MEMBERS LIST -->
 
-            <div id="membersList" class="members-list"></div>
+            <div
+                id="membersList"
+                class="members-list"
+            ></div>
 
         </section>
 
 
-        <!-- FOOTER -->
+        <!-- =================================
+             FOOTER
+        ================================== -->
 
         <footer class="admin-footer">
 
-            <p>coreI — Ideas have a place.</p>
+            <p>
+                coreI — Ideas have a place.
+            </p>
 
             <a href="./index.html">
                 View public website ↗
@@ -291,4 +501,5 @@
     </main>
 
 </body>
+
 </html>

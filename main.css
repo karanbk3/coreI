@@ -1,11 +1,13 @@
 
 /* =========================================
    coreI — MAIN WEBSITE DESIGN
-   Mobile-first | Clean | Modern
+   Modern | Responsive | Clean | Professional
 ========================================= */
 
 
-/* 1. COLORS AND BASIC SETTINGS */
+/* =========================================
+   1. COLORS AND BASIC SETTINGS
+========================================= */
 
 :root {
     --navy: #10172B;
@@ -27,6 +29,10 @@
     --danger: #D95365;
 
     --shadow: 0 10px 30px rgba(16, 23, 43, 0.06);
+    --shadow-strong: 0 18px 45px rgba(16, 23, 43, 0.12);
+
+    --radius: 18px;
+    --transition: 0.25s ease;
 }
 
 * {
@@ -67,12 +73,19 @@ a {
     text-decoration: none;
 }
 
+[hidden] {
+    display: none !important;
+}
 
-/* 2. TOP HEADER */
+
+/* =========================================
+   2. TOP HEADER
+========================================= */
 
 .topbar {
     height: 70px;
     padding: 0 6%;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -98,9 +111,17 @@ a {
     color: var(--violet);
 }
 
+
+/* =========================================
+   3. NOTIFICATION BUTTON
+========================================= */
+
 .notification-button {
-    width: 42px;
-    height: 42px;
+    position: relative;
+
+    width: 44px;
+    height: 44px;
+
     display: grid;
     place-items: center;
 
@@ -109,18 +130,229 @@ a {
 
     background: var(--white);
     color: var(--navy);
-    font-size: 22px;
 
-    transition: 0.2s ease;
+    font-size: 21px;
+
+    transition: var(--transition);
 }
 
 .notification-button:hover {
     background: #F1EDFC;
+    border-color: #D8C9FA;
+    transform: translateY(-2px);
+}
+
+.notification-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+
+/* UNREAD COUNT */
+
+.notification-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+
+    display: grid;
+    place-items: center;
+
+    border: 2px solid white;
+    border-radius: 20px;
+
+    background: var(--danger);
+    color: white;
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+
+/* =========================================
+   4. NOTIFICATION PANEL
+========================================= */
+
+.notification-panel {
+    position: fixed;
+
+    top: 80px;
+    right: 5%;
+
+    width: min(390px, 92%);
+    max-height: min(520px, 75vh);
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 21px;
+
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+
+    box-shadow: var(--shadow-strong);
+
+    z-index: 200;
+
+    animation: notificationAppear 0.22s ease;
+}
+
+@keyframes notificationAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* NOTIFICATION HEADER */
+
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.notification-header .eyebrow {
+    margin-bottom: 5px;
+}
+
+.notification-header h2 {
+    color: var(--navy);
+    font-size: 21px;
+}
+
+.close-notifications {
+    width: 35px;
+    height: 35px;
+
+    display: grid;
+    place-items: center;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #F3F1F8;
+    color: var(--navy);
+
+    font-size: 24px;
+
+    transition: var(--transition);
+}
+
+.close-notifications:hover {
+    background: #EAE4F8;
     color: var(--violet-dark);
 }
 
 
-/* 3. MAIN CONTAINER */
+/* NOTIFICATION LIST */
+
+.notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    padding-top: 15px;
+    padding-right: 3px;
+}
+
+.notification-list:empty {
+    display: none;
+}
+
+
+/* NOTIFICATION CARD */
+
+.notification-card {
+    position: relative;
+
+    padding: 15px;
+
+    background: #FAFAFC;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    cursor: pointer;
+
+    transition: var(--transition);
+}
+
+.notification-card:hover {
+    background: #F5F1FF;
+    border-color: #DCD0FA;
+}
+
+.notification-card.unread {
+    background: #F7F3FF;
+    border-left: 4px solid var(--violet);
+}
+
+.notification-card h3 {
+    color: var(--navy);
+    font-size: 14px;
+    line-height: 1.5;
+
+    margin-bottom: 6px;
+}
+
+.notification-card p {
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.7;
+
+    margin-bottom: 10px;
+
+    overflow-wrap: anywhere;
+}
+
+.notification-card small {
+    display: block;
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.notification-status {
+    display: inline-block;
+
+    margin-top: 9px;
+    padding: 4px 9px;
+
+    border-radius: 20px;
+
+    background: #EEEAF7;
+    color: var(--violet-dark);
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.notification-card.unread .notification-status {
+    background: #E8DFFF;
+    color: #7354B5;
+}
+
+
+/* =========================================
+   5. MAIN CONTAINER
+========================================= */
 
 .main-container {
     width: 100%;
@@ -142,7 +374,9 @@ a {
 }
 
 
-/* 4. SECTION LABELS */
+/* =========================================
+   6. SECTION LABELS
+========================================= */
 
 .eyebrow {
     color: #927BCB;
@@ -153,7 +387,9 @@ a {
 }
 
 
-/* 5. WELCOME SECTION */
+/* =========================================
+   7. WELCOME SECTION
+========================================= */
 
 .welcome-section {
     margin: 15px 0 30px;
@@ -176,7 +412,9 @@ a {
 }
 
 
-/* 6. WELCOME FEATURE CARD */
+/* =========================================
+   8. WELCOME FEATURE CARD
+========================================= */
 
 .welcome-card {
     position: relative;
@@ -199,6 +437,7 @@ a {
 
 .welcome-card::after {
     content: "";
+
     position: absolute;
 
     width: 190px;
@@ -209,6 +448,8 @@ a {
 
     right: -75px;
     top: -75px;
+
+    pointer-events: none;
 }
 
 .card-label {
@@ -242,7 +483,9 @@ a {
 }
 
 
-/* 7. CONTENT SECTIONS */
+/* =========================================
+   9. CONTENT SECTIONS
+========================================= */
 
 .content-section {
     margin-top: 42px;
@@ -253,6 +496,7 @@ a {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+
     margin-bottom: 17px;
 }
 
@@ -279,7 +523,9 @@ a {
 }
 
 
-/* 8. EMPTY CARDS */
+/* =========================================
+   10. EMPTY CARDS
+========================================= */
 
 .empty-card {
     padding: 30px 20px;
@@ -322,7 +568,9 @@ a {
 }
 
 
-/* 9. COMMUNITY ANNOUNCEMENTS */
+/* =========================================
+   11. COMMUNITY ANNOUNCEMENTS
+========================================= */
 
 .announcements-list {
     display: grid;
@@ -340,6 +588,7 @@ a {
     box-shadow: 0 6px 20px rgba(16, 23, 43, 0.04);
 
     overflow-wrap: anywhere;
+
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -370,7 +619,9 @@ a {
 }
 
 
-/* 10. COMMUNITY GUIDELINES */
+/* =========================================
+   12. COMMUNITY GUIDELINES
+========================================= */
 
 .guidelines-card {
     margin-top: 40px;
@@ -398,7 +649,7 @@ a {
 
 
 /* =========================================
-   11. SHARE IDEAS PAGE
+   13. SHARE IDEAS PAGE
 ========================================= */
 
 #ideasSection {
@@ -562,7 +813,7 @@ a {
 
 
 /* =========================================
-   12. COMMUNITY IDEA FEED
+   14. COMMUNITY IDEA FEED
 ========================================= */
 
 #ideasList,
@@ -738,7 +989,7 @@ a {
 
 
 /* =========================================
-   13. PROFILE PAGE PLACEHOLDERS
+   15. PROFILE PAGE PLACEHOLDERS
 ========================================= */
 
 #profileSection {
@@ -751,7 +1002,7 @@ a {
 
 
 /* =========================================
-   14. BOTTOM NAVIGATION
+   16. BOTTOM NAVIGATION
 ========================================= */
 
 .bottom-navigation {
@@ -812,9 +1063,13 @@ a {
     color: var(--violet-dark);
 }
 
+.nav-button:hover {
+    color: var(--violet-dark);
+}
+
 
 /* =========================================
-   15. TABLET AND DESKTOP
+   17. TABLET AND DESKTOP
 ========================================= */
 
 @media (min-width: 700px) {
@@ -866,14 +1121,20 @@ a {
     body {
         padding-bottom: 120px;
     }
+
 }
 
 
 /* =========================================
-   16. SMALL PHONES
+   18. SMALL PHONES
 ========================================= */
 
 @media (max-width: 480px) {
+
+    .topbar {
+        height: 64px;
+        padding: 0 18px;
+    }
 
     .main-container {
         padding: 25px 15px;
@@ -913,11 +1174,20 @@ a {
     .announcement-card {
         padding: 17px;
     }
+
+    .notification-panel {
+        top: 72px;
+        right: 4%;
+        width: 92%;
+        max-height: 72vh;
+        padding: 17px;
+    }
+
 }
 
 
 /* =========================================
-   17. ACCESSIBILITY
+   19. ACCESSIBILITY
 ========================================= */
 
 button:focus-visible,
@@ -937,4 +1207,5 @@ a:focus-visible {
         transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
     }
+
 }

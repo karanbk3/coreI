@@ -35,6 +35,23 @@ const featuredIdeasList =
 const announcementsList =
     document.getElementById("announcementsList");
 
+// Notification elements
+
+const notificationButton =
+    document.getElementById("notificationButton");
+
+const notificationPanel =
+    document.getElementById("notificationPanel");
+
+const closeNotifications =
+    document.getElementById("closeNotifications");
+
+const notificationCount =
+    document.getElementById("notificationCount");
+
+const notificationList =
+    document.getElementById("notificationList");
+
 
 // =========================================
 // 2. MEMBER INFORMATION
@@ -61,6 +78,7 @@ function showMessage(message, type = "") {
     if (type) {
         ideaFormMessage.classList.add(type);
     }
+
 }
 
 
@@ -105,6 +123,7 @@ function openSection(sectionId) {
         top: 0,
         behavior: "smooth"
     });
+
 }
 
 
@@ -183,7 +202,12 @@ async function checkMemberAccess() {
                     "Please sign in to explore community ideas.";
             }
 
+            if (notificationButton) {
+                notificationButton.disabled = true;
+            }
+
             return false;
+
         }
 
 
@@ -232,7 +256,12 @@ async function checkMemberAccess() {
                     "Your profile could not be loaded.";
             }
 
+            if (notificationButton) {
+                notificationButton.disabled = true;
+            }
+
             return false;
+
         }
 
 
@@ -257,7 +286,12 @@ async function checkMemberAccess() {
                     "Only approved members can access community ideas.";
             }
 
+            if (notificationButton) {
+                notificationButton.disabled = true;
+            }
+
             return false;
+
         }
 
 
@@ -265,6 +299,10 @@ async function checkMemberAccess() {
 
         if (ideaForm) {
             ideaForm.hidden = false;
+        }
+
+        if (notificationButton) {
+            notificationButton.disabled = false;
         }
 
         return true;
@@ -283,7 +321,9 @@ async function checkMemberAccess() {
         }
 
         return false;
+
     }
+
 }
 
 
@@ -490,6 +530,7 @@ function createIdeaCard(idea) {
                 );
 
                 return;
+
             }
 
 
@@ -568,6 +609,7 @@ function createIdeaCard(idea) {
                     );
 
                     return;
+
                 }
 
 
@@ -608,6 +650,7 @@ function createIdeaCard(idea) {
     );
 
     return card;
+
 }
 
 
@@ -659,6 +702,7 @@ async function loadIdeas() {
         }
 
         return;
+
     }
 
 
@@ -751,6 +795,7 @@ if (ideaForm) {
             );
 
             return;
+
         }
 
 
@@ -762,6 +807,7 @@ if (ideaForm) {
             );
 
             return;
+
         }
 
 
@@ -780,6 +826,7 @@ if (ideaForm) {
             );
 
             return;
+
         }
 
 
@@ -793,6 +840,7 @@ if (ideaForm) {
             );
 
             return;
+
         }
 
 
@@ -832,6 +880,7 @@ if (ideaForm) {
                 );
 
                 return;
+
             }
 
 
@@ -877,7 +926,253 @@ if (ideaForm) {
 
 
 // =========================================
-// 10. LOAD COMMUNITY ANNOUNCEMENTS
+// 10. NOTIFICATION SYSTEM
+// =========================================
+
+// Load notifications for the logged-in member.
+
+async function loadNotifications() {
+
+    if (!currentUser || !notificationList) return;
+
+    notificationList.textContent = "Loading notifications...";
+
+    try {
+
+        const { data, error } = await supabase
+            .from("notifications")
+            .select(`
+                id,
+                title,
+                message,
+                type,
+                is_read,
+                created_at
+            `)
+            .eq("user_id", currentUser.id)
+            .order("created_at", { ascending: false });
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        // Count unread notifications.
+
+        const unreadCount = (data || []).filter(
+            notification => !notification.is_read
+        ).length;
+
+
+        if (notificationCount) {
+
+            notificationCount.textContent =
+                unreadCount > 99 ? "99+" : unreadCount;
+
+            notificationCount.hidden = unreadCount === 0;
+
+        }
+
+
+        notificationList.replaceChildren();
+
+
+        // Show empty message.
+
+        if (!data || data.length === 0) {
+
+            const emptyCard = document.createElement("div");
+
+            emptyCard.className = "empty-card";
+
+
+            const icon = document.createElement("div");
+
+            icon.className = "empty-icon";
+
+            icon.textContent = "🔔";
+
+
+            const heading = document.createElement("h3");
+
+            heading.textContent = "No notifications yet";
+
+
+            const description = document.createElement("p");
+
+            description.textContent =
+                "Your important community updates will appear here.";
+
+
+            emptyCard.append(
+                icon,
+                heading,
+                description
+            );
+
+            notificationList.appendChild(emptyCard);
+
+            return;
+
+        }
+
+
+        // Create notification cards.
+
+        data.forEach(notification => {
+
+            const card = document.createElement("article");
+
+            card.className = "notification-card";
+
+            if (!notification.is_read) {
+                card.classList.add("unread");
+            }
+
+
+            const heading = document.createElement("h3");
+
+            heading.textContent =
+                notification.title || "Community notification";
+
+
+            const message = document.createElement("p");
+
+            message.textContent =
+                notification.message || "";
+
+
+            const date = document.createElement("small");
+
+            date.textContent = notification.created_at
+                ? new Date(
+                    notification.created_at
+                ).toLocaleString()
+                : "";
+
+
+            const status = document.createElement("span");
+
+            status.className = "notification-status";
+
+            status.textContent = notification.is_read
+                ? "Read"
+                : "New";
+
+
+            card.append(
+                heading,
+                message,
+                date,
+                status
+            );
+
+
+            // Mark notification as read.
+
+            if (!notification.is_read) {
+
+                card.addEventListener("click", async () => {
+
+                    card.style.pointerEvents = "none";
+
+                    try {
+
+                        const { error: updateError } = await supabase
+                            .from("notifications")
+                            .update({ is_read: true })
+                            .eq("id", notification.id)
+                            .eq("user_id", currentUser.id);
+
+
+                        if (updateError) {
+                            throw updateError;
+                        }
+
+
+                        // Reload notifications to update the count.
+
+                        await loadNotifications();
+
+                    } catch (error) {
+
+                        console.error(
+                            "Mark notification as read error:",
+                            error
+                        );
+
+                        card.style.pointerEvents = "auto";
+
+                    }
+
+                });
+
+            }
+
+
+            notificationList.appendChild(card);
+
+        });
+
+    } catch (error) {
+
+        console.error("Notification loading error:", error);
+
+        notificationList.textContent =
+            "Unable to load notifications. Please try again.";
+
+    }
+
+}
+
+
+// =========================================
+// 11. OPEN NOTIFICATION PANEL
+// =========================================
+
+if (notificationButton && notificationPanel) {
+
+    notificationButton.addEventListener("click", async () => {
+
+        notificationPanel.hidden = !notificationPanel.hidden;
+
+        notificationButton.setAttribute(
+            "aria-expanded",
+            String(!notificationPanel.hidden)
+        );
+
+        if (!notificationPanel.hidden) {
+            await loadNotifications();
+        }
+
+    });
+
+}
+
+
+// =========================================
+// 12. CLOSE NOTIFICATION PANEL
+// =========================================
+
+if (closeNotifications && notificationPanel) {
+
+    closeNotifications.addEventListener("click", () => {
+
+        notificationPanel.hidden = true;
+
+        notificationButton?.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+    });
+
+}
+
+
+// =========================================
+// 13. LOAD COMMUNITY ANNOUNCEMENTS
 // =========================================
 
 async function loadAnnouncements() {
@@ -923,6 +1218,7 @@ async function loadAnnouncements() {
         announcementsList.appendChild(message);
 
         return;
+
     }
 
 
@@ -967,12 +1263,12 @@ async function loadAnnouncements() {
         announcementsList.appendChild(emptyCard);
 
         return;
+
     }
 
 
     // =====================================
     // CREATE ANNOUNCEMENT CARDS
-    // No suggestions or questions.
     // =====================================
 
     data.forEach(announcement => {
@@ -982,23 +1278,17 @@ async function loadAnnouncements() {
         card.className = "announcement-card";
 
 
-        // Announcement title.
-
         const heading = document.createElement("h3");
 
         heading.textContent =
             announcement.title || "Community update";
 
 
-        // Announcement description.
-
         const description = document.createElement("p");
 
         description.textContent =
             announcement.description || "";
 
-
-        // Publication date.
 
         const date = document.createElement("small");
 
@@ -1010,8 +1300,6 @@ async function loadAnnouncements() {
             ).toLocaleDateString()
             : "";
 
-
-        // Add only these three elements.
 
         card.append(
             heading,
@@ -1028,7 +1316,7 @@ async function loadAnnouncements() {
 
 
 // =========================================
-// 11. START APPLICATION
+// 14. START APPLICATION
 // =========================================
 
 async function startApplication() {
@@ -1040,7 +1328,7 @@ async function startApplication() {
     if (!hasAccess) return;
 
 
-    // Load announcements for approved members.
+    // Load announcements.
 
     await loadAnnouncements();
 
@@ -1048,6 +1336,11 @@ async function startApplication() {
     // Load community and featured ideas.
 
     await loadIdeas();
+
+
+    // Load member notifications.
+
+    await loadNotifications();
 
 }
 

@@ -1,39 +1,38 @@
 
 import { supabase } from "./supabase.js";
 
-// =====================================
+// =============================================
 // 1. GET PAGE ELEMENTS
-// =====================================
+// =============================================
 
-// Membership elements
+// Dashboard statistics
+const totalMembersCount = document.getElementById("totalMembersCount");
+const totalIdeasCount = document.getElementById("totalIdeasCount");
+const publishedAnnouncementsCount = document.getElementById("publishedAnnouncementsCount");
 
+// Membership statistics
 const pendingCount = document.getElementById("pendingCount");
 const approvedCount = document.getElementById("approvedCount");
 const rejectedCount = document.getElementById("rejectedCount");
 
+// Member management
 const membersList = document.getElementById("membersList");
 const dashboardMessage = document.getElementById("dashboardMessage");
-
 const refreshButton = document.getElementById("refreshButton");
 const logoutButton = document.getElementById("logoutButton");
-
 const filterButtons = document.querySelectorAll(".filter-button");
 
-// Announcement elements
-
+// Announcement form
 const announcementForm = document.getElementById("announcementForm");
-
 const announcementTitle = document.getElementById("announcementTitle");
 const announcementDescription = document.getElementById("announcementDescription");
-const announcementQuestion = document.getElementById("announcementQuestion");
-
 const announcementMessage = document.getElementById("announcementMessage");
 const publishAnnouncementButton = document.getElementById("publishAnnouncementButton");
 
 
-// =====================================
+// =============================================
 // 2. DASHBOARD VARIABLES
-// =====================================
+// =============================================
 
 let allMembers = [];
 let currentFilter = "pending";
@@ -41,61 +40,48 @@ let currentAdminId = null;
 let dashboardStarted = false;
 
 
-// =====================================
+// =============================================
 // 3. SHOW MESSAGES
-// =====================================
+// =============================================
 
 function showMessage(message) {
-
     if (dashboardMessage) {
         dashboardMessage.textContent = message;
     }
-
 }
 
-
 function showAnnouncementMessage(message, type = "") {
-
     if (!announcementMessage) return;
 
     announcementMessage.textContent = message;
-
     announcementMessage.className = "announcement-message";
 
     if (type) {
         announcementMessage.classList.add(type);
     }
-
 }
 
 
-// =====================================
+// =============================================
 // 4. CHECK ADMINISTRATOR ACCESS
-// =====================================
+// =============================================
 
 async function checkAdminAccess() {
-
     try {
-
-        // Check logged-in account
-
+        // Check whether someone is logged in.
         const {
             data: userData,
             error: userError
         } = await supabase.auth.getUser();
 
         if (userError || !userData.user) {
-
             window.location.replace("./login.html");
-
             return false;
         }
 
         currentAdminId = userData.user.id;
 
-
-        // Get account role from database
-
+        // Get the user's profile.
         const {
             data: profile,
             error: profileError
@@ -105,225 +91,283 @@ async function checkAdminAccess() {
             .eq("id", currentAdminId)
             .single();
 
-
         if (profileError || !profile) {
-
             console.error("Profile verification error:", profileError);
-
-            showMessage("Your account could not be verified.");
-
             window.location.replace("./login.html");
-
             return false;
         }
 
-
-        // Only approved administrator accounts can continue
-
+        // Only an approved administrator can continue.
         if (
             profile.role !== "admin" ||
             profile.status !== "approved"
         ) {
-
             showMessage("Access denied. Administrator permission required.");
-
             window.location.replace("./main.html");
-
             return false;
         }
 
-
-        // Verify administrator permission using Supabase function
-
+        // Verify administrator access through Supabase.
         const {
             data: adminCheck,
             error: adminError
         } = await supabase.rpc("is_corei_admin");
 
-
         if (adminError || adminCheck !== true) {
-
             console.error("Admin verification error:", adminError);
-
             showMessage("Administrator permission could not be verified.");
-
             window.location.replace("./main.html");
-
             return false;
         }
-
 
         console.log("coreI administrator access verified.");
 
         return true;
 
     } catch (error) {
-
         console.error("Admin access error:", error);
-
         window.location.replace("./login.html");
-
         return false;
     }
-
 }
 
 
-// =====================================
-// 5. PUBLISH FEATURE ANNOUNCEMENT
-// =====================================
+// =============================================
+// 5. LOAD DASHBOARD STATISTICS
+// =============================================
+
+async function loadDashboardStats() {
+    // Count normal members, excluding the administrator.
+    if (totalMembersCount) {
+        totalMembersCount.textContent = allMembers.length;
+    }
+
+    // Show loading indicators.
+    if (totalIdeasCount) {
+        totalIdeasCount.textContent = "…";
+    }
+
+    if (publishedAnnouncementsCount) {
+        publishedAnnouncementsCount.textContent = "…";
+    }
+
+    try {
+        // Request both counts at the same time.
+        const [
+            ideasResult,
+            announcementsResult
+        ] = await Promise.all([
+            supabase
+                .from("ideas")
+                .select("id", {
+                    count: "exact",
+                    head: true
+                }),
+
+            supabase
+                .from("announcements")
+                .select("id", {
+                    count: "exact",
+                    head: true
+                })
+                .eq("is_published", true)
+        ]);
+
+        // Display total ideas.
+        if (ideasResult.error) {
+            console.error("Ideas count error:", ideasResult.error);
+
+            if (totalIdeasCount) {
+                totalIdeasCount.textContent = "—";
+            }
+
+        } else if (totalIdeasCount) {
+            totalIdeasCount.textContent = ideasResult.count ?? 0;
+        }
+
+        // Display published announcements.
+        if (announcementsResult.error) {
+            console.error(
+                "Announcements count error:",
+                announcementsResult.error
+            );
+
+            if (publishedAnnouncementsCount) {
+                publishedAnnouncementsCount.textContent = "—";
+            }
+
+        } else if (publishedAnnouncementsCount) {
+            publishedAnnouncementsCount.textContent =
+                announcementsResult.count ?? 0;
+        }
+
+    } catch (error) {
+        console.error("Dashboard statistics error:", error);
+
+        if (totalIdeasCount) {
+            totalIdeasCount.textContent = "—";
+        }
+
+        if (publishedAnnouncementsCount) {
+            publishedAnnouncementsCount.textContent = "—";
+        }
+    }
+}
+
+
+// =============================================
+// 6. PUBLISH FEATURE ANNOUNCEMENT
+// =============================================
 
 async function publishAnnouncement(event) {
-
     event.preventDefault();
 
     if (!currentAdminId) return;
 
-    const title = announcementTitle.value.trim();
-
-    const description = announcementDescription.value.trim();
-
-    const question = announcementQuestion.value.trim();
-
-
-    // Validate form
-
-    if (!title || !description || !question) {
-
+    if (
+        !announcementForm ||
+        !announcementTitle ||
+        !announcementDescription ||
+        !publishAnnouncementButton
+    ) {
         showAnnouncementMessage(
-            "Please complete all three fields.",
+            "Announcement form could not be found.",
             "error"
         );
 
         return;
     }
 
+    // Read the form information.
+    const title = announcementTitle.value.trim();
+    const description = announcementDescription.value.trim();
 
-    // Prevent repeated clicks
+    // Check the information.
+    if (!title || !description) {
+        showAnnouncementMessage(
+            "Please enter the feature title and description.",
+            "error"
+        );
 
+        return;
+    }
+
+    // Disable the button while publishing.
     publishAnnouncementButton.disabled = true;
-
     publishAnnouncementButton.textContent = "Publishing...";
 
     showAnnouncementMessage("Publishing your announcement...");
 
-
     try {
-
-        // Save announcement
-
         const { error } = await supabase
             .from("announcements")
             .insert({
                 title: title,
                 description: description,
-                question: question,
+
+                // Your database requires this column.
+                // The form does not ask the admin for a question.
+                question: "",
+
                 created_by: currentAdminId,
                 is_published: true
             });
 
-
         if (error) {
-
             console.error("Announcement error:", error);
 
             showAnnouncementMessage(
-                "Could not publish. Please check database permissions.",
+                "Could not publish: " + error.message,
                 "error"
             );
 
             return;
         }
 
-
-        // Successful publishing
-
+        // Clear the form after successful publishing.
         announcementForm.reset();
 
         showAnnouncementMessage(
-            "Your announcement has been published successfully!",
+            "Announcement published successfully!",
             "success"
         );
 
-    } catch (error) {
+        // Update the announcement count.
+        await loadDashboardStats();
 
-        console.error(error);
+    } catch (error) {
+        console.error("Announcement error:", error);
 
         showAnnouncementMessage(
-            "Something went wrong. Please try again.",
+            "Something went wrong: " + error.message,
             "error"
         );
 
     } finally {
-
         publishAnnouncementButton.disabled = false;
-
         publishAnnouncementButton.textContent = "Publish announcement";
-
     }
-
 }
 
 
-// =====================================
-// 6. LOAD MEMBERS
-// =====================================
+// =============================================
+// 7. LOAD MEMBERS
+// =============================================
 
 async function loadMembers() {
-
-    if (!currentAdminId) return;
+    if (!currentAdminId || !membersList) return;
 
     showMessage("Loading membership requests...");
 
     membersList.replaceChildren();
 
-
     try {
-
         const { data, error } = await supabase
             .from("profiles")
             .select("id, display_name, status, role, created_at")
-            .order("created_at", { ascending: false });
-
+            .order("created_at", {
+                ascending: false
+            });
 
         if (error) {
-
             console.error("Member loading error:", error);
 
-            showMessage("Could not load members. Please refresh.");
+            showMessage(
+                "Could not load members: " + error.message
+            );
 
             return;
         }
 
-
-        // Do not display administrator accounts as member requests
-
+        // Keep normal member accounts only.
         allMembers = (data || []).filter(
             member => member.role !== "admin"
         );
 
-
+        // Update the statistics.
         updateStatistics();
 
+        // Update the main dashboard cards.
+        await loadDashboardStats();
+
+        // Display the selected member list.
         displayMembers();
 
     } catch (error) {
+        console.error("Member loading error:", error);
 
-        console.error(error);
-
-        showMessage("Something went wrong while loading members.");
-
+        showMessage(
+            "Something went wrong while loading members."
+        );
     }
-
 }
 
 
-// =====================================
-// 7. UPDATE MEMBERSHIP STATISTICS
-// =====================================
+// =============================================
+// 8. UPDATE MEMBERSHIP STATISTICS
+// =============================================
 
 function updateStatistics() {
-
     const pending = allMembers.filter(
         member => member.status === "pending"
     ).length;
@@ -336,178 +380,144 @@ function updateStatistics() {
         member => member.status === "rejected"
     ).length;
 
+    if (pendingCount) {
+        pendingCount.textContent = pending;
+    }
 
-    pendingCount.textContent = pending;
+    if (approvedCount) {
+        approvedCount.textContent = approved;
+    }
 
-    approvedCount.textContent = approved;
+    if (rejectedCount) {
+        rejectedCount.textContent = rejected;
+    }
 
-    rejectedCount.textContent = rejected;
-
+    if (totalMembersCount) {
+        totalMembersCount.textContent = allMembers.length;
+    }
 }
 
 
-// =====================================
-// 8. DISPLAY MEMBERS
-// =====================================
+// =============================================
+// 9. DISPLAY MEMBERS
+// =============================================
 
 function displayMembers() {
+    if (!membersList) return;
 
     membersList.replaceChildren();
 
     let filteredMembers = allMembers;
 
-
-    // Apply selected filter
-
+    // Apply the selected filter.
     if (currentFilter !== "all") {
-
         filteredMembers = allMembers.filter(
             member => member.status === currentFilter
         );
-
     }
 
-
-    // Empty list message
-
+    // Show a message if there are no members.
     if (filteredMembers.length === 0) {
-
         showMessage("No members found in this section.");
-
         return;
     }
 
     showMessage("");
 
-
-    // Create member cards
-
+    // Create a card for every member.
     filteredMembers.forEach(member => {
-
         const card = document.createElement("article");
-
         card.className = "member-card";
 
-
-        // Member information
-
+        // Member information section.
         const top = document.createElement("div");
-
         top.className = "member-top";
 
-
-        // Member avatar
-
+        // Member avatar.
         const avatar = document.createElement("div");
-
         avatar.className = "member-avatar";
 
         avatar.textContent =
-            (member.display_name || "M").charAt(0).toUpperCase();
+            (member.display_name || "M")
+                .charAt(0)
+                .toUpperCase();
 
-
-        // Member name and joining date
-
+        // Member name and joining date.
         const info = document.createElement("div");
-
         info.className = "member-info";
 
-
         const name = document.createElement("h3");
-
         name.textContent = member.display_name || "New member";
-
 
         const date = document.createElement("p");
 
-        date.textContent = "Joined: " +
-            new Date(member.created_at).toLocaleDateString();
-
+        date.textContent = "Joined: " + (
+            member.created_at
+                ? new Date(member.created_at).toLocaleDateString()
+                : "Date unavailable"
+        );
 
         info.append(name, date);
-
         top.append(avatar, info);
 
-
-        // Membership status
-
+        // Member status.
         const status = document.createElement("span");
 
         status.className = "member-status " + member.status;
-
         status.textContent = member.status;
 
         card.append(top, status);
 
-
-        // Action buttons for pending requests
-
+        // Only pending members receive action buttons.
         if (member.status === "pending") {
-
             const actions = document.createElement("div");
-
             actions.className = "member-actions";
 
-
-            // Approve button
-
+            // Approve button.
             const approveButton = document.createElement("button");
 
+            approveButton.type = "button";
             approveButton.className = "approve-button";
-
             approveButton.textContent = "✓ Approve";
 
             approveButton.addEventListener("click", () => {
-
                 updateMemberStatus(member.id, "approved");
-
             });
 
-
-            // Reject button
-
+            // Reject button.
             const rejectButton = document.createElement("button");
 
+            rejectButton.type = "button";
             rejectButton.className = "reject-button";
-
             rejectButton.textContent = "✕ Reject";
 
             rejectButton.addEventListener("click", () => {
-
                 updateMemberStatus(member.id, "rejected");
-
             });
 
-
             actions.append(approveButton, rejectButton);
-
             card.append(actions);
-
         }
 
-
         membersList.append(card);
-
     });
-
 }
 
 
-// =====================================
-// 9. APPROVE OR REJECT MEMBERS
-// =====================================
+// =============================================
+// 10. APPROVE OR REJECT MEMBERS
+// =============================================
 
 async function updateMemberStatus(memberId, newStatus) {
-
     if (!currentAdminId) return;
 
-    if (!["approved", "rejected"].includes(newStatus)) return;
-
+    if (!["approved", "rejected"].includes(newStatus)) {
+        return;
+    }
 
     const action = newStatus === "approved"
         ? "approve"
         : "reject";
-
 
     const confirmed = window.confirm(
         `Are you sure you want to ${action} this membership request?`
@@ -515,105 +525,109 @@ async function updateMemberStatus(memberId, newStatus) {
 
     if (!confirmed) return;
 
-
     showMessage("Updating membership...");
 
-
     try {
-
-        const { data, error } = await supabase
-            .from("profiles")
-            .update({ status: newStatus })
-            .eq("id", memberId)
-            .eq("status", "pending")
-            .neq("role", "admin")
-            .select("id")
-            .maybeSingle();
-
+        // Use the existing protected Supabase function.
+        const { data, error } = await supabase.rpc(
+            "admin_update_member_status",
+            {
+                p_member_id: memberId,
+                p_new_status: newStatus
+            }
+        );
 
         if (error) {
-
             console.error("Membership update error:", error);
 
             showMessage(
-                "Could not update membership. Check administrator permissions."
+                "Could not update membership: " + error.message
             );
 
             return;
         }
 
-
-        if (!data) {
-
-            showMessage("This request has already changed. Refreshing...");
+        if (data !== true) {
+            showMessage(
+                "No membership was updated. The request may have already changed."
+            );
 
             await loadMembers();
-
             return;
         }
-
 
         showMessage(
             newStatus === "approved"
                 ? "Member approved successfully!"
-                : "Membership request rejected."
+                : "Membership request rejected successfully!"
         );
 
-
+        // Reload the updated information.
         await loadMembers();
 
     } catch (error) {
+        console.error("Unexpected membership error:", error);
 
-        console.error(error);
-
-        showMessage("Something went wrong. Please try again.");
-
+        showMessage(
+            "Something went wrong: " + error.message
+        );
     }
-
 }
 
 
-// =====================================
-// 10. FILTER BUTTONS
-// =====================================
+// =============================================
+// 11. FILTER BUTTONS
+// =============================================
 
 filterButtons.forEach(button => {
-
     button.addEventListener("click", () => {
+        const selectedFilter = button.dataset.filter;
 
-        currentFilter = button.dataset.filter;
+        if (
+            !["pending", "approved", "rejected", "all"]
+                .includes(selectedFilter)
+        ) {
+            return;
+        }
 
+        currentFilter = selectedFilter;
+
+        // Update the active filter button.
         filterButtons.forEach(item => {
-
             item.classList.remove("active");
-
         });
 
         button.classList.add("active");
 
+        // Show the selected members.
         displayMembers();
-
     });
-
 });
 
 
-// =====================================
-// 11. REFRESH DASHBOARD
-// =====================================
+// =============================================
+// 12. REFRESH DASHBOARD
+// =============================================
 
-refreshButton?.addEventListener("click", () => {
+refreshButton?.addEventListener("click", async () => {
+    if (!dashboardStarted) return;
 
-    if (dashboardStarted) {
-        loadMembers();
+    refreshButton.disabled = true;
+    refreshButton.textContent = "Refreshing...";
+
+    try {
+        await loadMembers();
+
+    } finally {
+        refreshButton.disabled = false;
+        refreshButton.textContent = "↻ Refresh";
     }
-
 });
 
 
-// =====================================
-// 12. ANNOUNCEMENT FORM
-// =====================================
+// =============================================
+// 13. ANNOUNCEMENT FORM
+// =============================================
 
 announcementForm?.addEventListener(
     "submit",
@@ -621,53 +635,67 @@ announcementForm?.addEventListener(
 );
 
 
-// =====================================
-// 13. SIGN OUT
-// =====================================
+// =============================================
+// 14. SIGN OUT
+// =============================================
 
 logoutButton?.addEventListener("click", async () => {
-
     const confirmed = window.confirm(
         "Are you sure you want to sign out?"
     );
 
     if (!confirmed) return;
 
+    logoutButton.disabled = true;
+    logoutButton.textContent = "Signing out...";
 
-    const { error } = await supabase.auth.signOut();
+    try {
+        const { error } = await supabase.auth.signOut();
 
+        if (error) {
+            console.error("Logout error:", error);
 
-    if (error) {
+            showMessage(
+                "Could not sign out. Please try again."
+            );
 
-        showMessage("Could not sign out. Please try again.");
+            logoutButton.disabled = false;
+            logoutButton.textContent = "Sign out";
 
-        return;
+            return;
+        }
+
+        window.location.replace("./login.html");
+
+    } catch (error) {
+        console.error("Logout error:", error);
+
+        showMessage(
+            "Something went wrong while signing out."
+        );
+
+        logoutButton.disabled = false;
+        logoutButton.textContent = "Sign out";
     }
-
-
-    window.location.replace("./login.html");
-
 });
 
 
-// =====================================
-// 14. START ADMIN DASHBOARD
-// =====================================
+// =============================================
+// 15. START ADMIN DASHBOARD
+// =============================================
 
 async function startDashboard() {
-
     const isAdmin = await checkAdminAccess();
 
     if (!isAdmin) return;
 
-
     dashboardStarted = true;
 
-    showMessage("Administrator verified. Loading dashboard...");
+    showMessage(
+        "Administrator verified. Loading dashboard..."
+    );
 
     await loadMembers();
-
 }
-
 
 startDashboard();

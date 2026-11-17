@@ -1,643 +1,1182 @@
 
 /* =========================================
-   coreI — PREMIUM SETTINGS DESIGN
+   coreI — SMARTPHONE STYLE SETTINGS
 ========================================= */
 
 :root {
-    --settings-bg: #10172B;
-    --settings-card: #18233B;
-    --settings-card-light: #202D49;
-    --settings-purple: #A78BFA;
-    --settings-purple-light: #C4B5FD;
-    --settings-white: #FFFFFF;
-    --settings-muted: #9BA7BD;
-    --settings-border: rgba(255, 255, 255, 0.09);
-    --settings-radius: 22px;
+    --settings-bg: #0B1120;
+    --settings-card: #141D31;
+    --settings-card-hover: #1A2640;
+
+    --settings-primary: #A78BFA;
+    --settings-primary-light: #C4B5FD;
+
+    --settings-text: #F3F0FF;
+    --settings-muted: #929BB0;
+
+    --settings-border: rgba(255, 255, 255, 0.08);
+    --settings-input: #0D1629;
+
+    --settings-success: #86EFAC;
+    --settings-danger: #FCA5A5;
+
+    --settings-radius: 18px;
+    --settings-transition: 0.25s ease;
 }
 
+
 /* =========================================
-   PAGE BACKGROUND
+   GLOBAL SETTINGS PAGE
 ========================================= */
 
 body {
+    font-family: 'Poppins', sans-serif;
     background: var(--settings-bg);
+    color: var(--settings-text);
 }
 
 .settings-container {
-    width: min(100% - 36px, 760px);
+    width: min(1150px, 92%);
     margin: 0 auto;
-    padding: 35px 0 120px;
+    padding: 45px 0 80px;
 }
 
+
 /* =========================================
-   PAGE HEADING
+   HEADER
+========================================= */
+
+.settings-header {
+    min-height: 72px;
+    padding: 0 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: rgba(16, 23, 43, 0.92);
+    border-bottom: 1px solid var(--settings-border);
+
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    color: var(--settings-text);
+    text-decoration: none;
+
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.brand-icon {
+    width: 34px;
+    height: 34px;
+
+    display: grid;
+    place-items: center;
+
+    background: var(--settings-primary);
+    color: #10172B;
+
+    border-radius: 11px;
+
+    font-size: 23px;
+    font-weight: 700;
+}
+
+.header-profile {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    color: var(--settings-muted);
+    text-decoration: none;
+    font-size: 13px;
+
+    transition: var(--settings-transition);
+}
+
+.header-profile:hover {
+    color: var(--settings-primary-light);
+}
+
+.profile-small-icon {
+    width: 34px;
+    height: 34px;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid var(--settings-border);
+    border-radius: 50%;
+}
+
+
+/* =========================================
+   PAGE INTRODUCTION
 ========================================= */
 
 .settings-heading {
-    margin-bottom: 32px;
-    padding: 12px 4px;
+    margin-bottom: 28px;
 }
 
-.settings-heading .eyebrow {
-    color: var(--settings-purple);
+.eyebrow {
+    color: var(--settings-primary);
     font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 2.5px;
-    margin-bottom: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
 }
 
 .settings-heading h1 {
-    color: var(--settings-white);
-    font-size: clamp(30px, 6vw, 42px);
-    font-weight: 800;
-    letter-spacing: -1.5px;
-    margin: 0 0 10px;
+    font-size: clamp(28px, 4vw, 38px);
+    margin: 8px 0 5px;
+    font-weight: 700;
 }
 
-.settings-heading > p:last-child {
+.settings-heading p {
     color: var(--settings-muted);
     font-size: 14px;
-    line-height: 1.7;
     margin: 0;
-    max-width: 450px;
 }
+
 
 /* =========================================
-   BACK BUTTON
+   PROFILE SUMMARY
 ========================================= */
 
-.back-button {
-    display: inline-flex;
+.settings-profile-summary {
+    display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 15px;
-    border-radius: 12px;
-    border: 1px solid var(--settings-border);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--settings-white);
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-    transition: 0.25s ease;
+    gap: 18px;
+
+    padding: 23px;
+
+    background:
+        linear-gradient(
+            115deg,
+            rgba(167, 139, 250, 0.13),
+            rgba(20, 29, 49, 0.96) 65%
+        );
+
+    border: 1px solid rgba(167, 139, 250, 0.16);
+    border-radius: 22px;
+
+    margin-bottom: 24px;
 }
 
-.back-button:hover {
-    background: rgba(167, 139, 250, 0.15);
-    border-color: var(--settings-purple);
+.summary-avatar {
+    width: 66px;
+    height: 66px;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    overflow: hidden;
+
+    border: 2px solid var(--settings-primary);
+    background: var(--settings-card);
 }
+
+.summary-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.summary-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.summary-details h2 {
+    font-size: 17px;
+    margin: 0 0 3px;
+    overflow-wrap: anywhere;
+}
+
+.summary-details p {
+    font-size: 12px;
+    color: var(--settings-muted);
+    margin: 0 0 7px;
+    overflow-wrap: anywhere;
+}
+
+.member-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    color: var(--settings-success);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--settings-success);
+}
+
+.edit-profile-link {
+    text-decoration: none;
+    color: var(--settings-primary-light);
+
+    font-size: 12px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.edit-profile-link span {
+    margin-left: 4px;
+}
+
+
+/* =========================================
+   SETTINGS SEARCH
+========================================= */
+
+.settings-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    height: 52px;
+    padding: 0 16px;
+
+    background: var(--settings-card);
+    border: 1px solid var(--settings-border);
+    border-radius: 14px;
+
+    margin-bottom: 30px;
+
+    transition: var(--settings-transition);
+}
+
+.settings-search:focus-within {
+    border-color: var(--settings-primary);
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.09);
+}
+
+.search-icon {
+    font-size: 25px;
+    color: var(--settings-muted);
+}
+
+.settings-search input {
+    flex: 1;
+    min-width: 0;
+
+    background: transparent;
+    border: none;
+    outline: none;
+
+    color: var(--settings-text);
+    font-family: inherit;
+    font-size: 13px;
+}
+
+.settings-search input::placeholder {
+    color: var(--settings-muted);
+}
+
+.search-shortcut {
+    color: var(--settings-muted);
+    font-size: 10px;
+
+    padding: 5px 8px;
+    border: 1px solid var(--settings-border);
+    border-radius: 6px;
+}
+
+
+/* =========================================
+   MAIN SETTINGS LAYOUT
+========================================= */
+
+.settings-layout {
+    display: grid;
+    grid-template-columns: 245px minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+}
+
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+.settings-sidebar {
+    position: sticky;
+    top: 95px;
+
+    padding: 18px 12px;
+
+    background: var(--settings-card);
+    border: 1px solid var(--settings-border);
+    border-radius: var(--settings-radius);
+}
+
+.sidebar-heading {
+    color: var(--settings-muted);
+
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+
+    padding: 0 12px;
+    margin: 3px 0 15px;
+}
+
+.settings-navigation {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.settings-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    padding: 12px;
+
+    color: var(--settings-muted);
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 500;
+
+    border-radius: 10px;
+
+    transition: var(--settings-transition);
+}
+
+.settings-menu-link:hover {
+    background: var(--settings-card-hover);
+    color: var(--settings-text);
+}
+
+.settings-menu-link.active {
+    background: rgba(167, 139, 250, 0.14);
+    color: var(--settings-primary-light);
+
+    border: 1px solid rgba(167, 139, 250, 0.12);
+}
+
+.menu-icon {
+    width: 23px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.sidebar-bottom {
+    margin-top: 20px;
+    padding: 17px 12px 3px;
+
+    border-top: 1px solid var(--settings-border);
+}
+
+.sidebar-bottom a {
+    color: var(--settings-muted);
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.sidebar-bottom a:hover {
+    color: var(--settings-primary);
+}
+
+
+/* =========================================
+   SETTINGS SECTIONS
+========================================= */
+
+.settings-content {
+    min-width: 0;
+}
+
+.settings-section {
+    margin-bottom: 38px;
+    scroll-margin-top: 100px;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    margin-bottom: 16px;
+}
+
+.section-icon {
+    width: 43px;
+    height: 43px;
+    flex-shrink: 0;
+
+    display: grid;
+    place-items: center;
+
+    background: rgba(167, 139, 250, 0.12);
+    border-radius: 13px;
+
+    font-size: 19px;
+}
+
+.section-heading h2 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 3px;
+}
+
+.section-heading p {
+    color: var(--settings-muted);
+    font-size: 11px;
+    margin: 0;
+}
+
 
 /* =========================================
    SETTINGS CARDS
 ========================================= */
 
 .settings-card {
-    position: relative;
-    overflow: hidden;
-    padding: 25px;
-    margin-bottom: 20px;
-
-    background: linear-gradient(
-        145deg,
-        rgba(32, 45, 73, 0.95),
-        rgba(24, 35, 59, 0.98)
-    );
+    background: var(--settings-card);
 
     border: 1px solid var(--settings-border);
     border-radius: var(--settings-radius);
 
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.13);
-
-    transition:
-        border-color 0.25s ease,
-        transform 0.25s ease;
+    padding: 23px;
+    margin-bottom: 15px;
 }
 
-.settings-card:hover {
-    border-color: rgba(167, 139, 250, 0.25);
+.settings-card h3 {
+    font-size: 14px;
+    margin: 0 0 17px;
 }
+
 
 /* =========================================
-   SECTION HEADINGS
+   PROFILE PHOTO
 ========================================= */
 
-.settings-section-heading {
+.avatar-settings {
     display: flex;
     align-items: center;
-    gap: 15px;
-    margin-bottom: 25px;
+    gap: 17px;
+
+    padding-bottom: 22px;
+    margin-bottom: 22px;
+
+    border-bottom: 1px solid var(--settings-border);
 }
 
-.settings-icon {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-
-    display: grid;
-    place-items: center;
-
-    border-radius: 16px;
-
-    background: rgba(167, 139, 250, 0.13);
-    border: 1px solid rgba(167, 139, 250, 0.18);
-
-    color: var(--settings-purple-light);
-    font-size: 21px;
-}
-
-.settings-section-heading h2 {
-    color: var(--settings-white);
-    font-size: 17px;
-    font-weight: 750;
-    margin: 0 0 6px;
-    letter-spacing: -0.3px;
-}
-
-.settings-section-heading p {
-    color: var(--settings-muted);
-    font-size: 12px;
-    line-height: 1.5;
-    margin: 0;
-}
-
-/* =========================================
-   PROFILE PHOTO AREA
-========================================= */
-
-.avatar-upload-area {
-    display: flex;
-    align-items: center;
-    gap: 22px;
-
-    padding: 20px;
-    margin-bottom: 26px;
-
-    border-radius: 18px;
-
-    background: rgba(12, 19, 37, 0.48);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-#avatarPreview {
-    width: 104px;
-    height: 104px;
-    min-width: 104px;
+.avatar-settings img {
+    width: 76px;
+    height: 76px;
 
     object-fit: cover;
     border-radius: 50%;
 
-    border: 4px solid rgba(167, 139, 250, 0.75);
-
-    background: var(--settings-card-light);
-
-    box-shadow:
-        0 0 0 6px rgba(167, 139, 250, 0.08),
-        0 8px 25px rgba(0, 0, 0, 0.25);
+    border: 2px solid var(--settings-primary);
+    background: var(--settings-input);
 }
 
-.avatar-upload-info {
-    min-width: 0;
+.avatar-settings h3 {
+    margin: 0 0 5px;
 }
 
-.avatar-upload-info strong {
-    display: block;
-    color: var(--settings-white);
-    font-size: 15px;
-    font-weight: 700;
-    margin-bottom: 7px;
-}
-
-.avatar-upload-info p {
+.avatar-settings p {
     color: var(--settings-muted);
-    font-size: 12px;
-    line-height: 1.6;
-    margin: 0 0 13px;
+    font-size: 11px;
+    margin: 0 0 10px;
 }
-
-/* Upload button */
 
 .upload-button {
+    display: inline-block;
+
+    padding: 8px 13px;
+
+    color: var(--settings-primary-light);
+    background: rgba(167, 139, 250, 0.12);
+
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    border-radius: 8px;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: var(--settings-transition);
+}
+
+.upload-button:hover {
+    background: rgba(167, 139, 250, 0.22);
+}
+
+
+/* =========================================
+   FORMS AND INPUTS
+========================================= */
+
+.form-group {
+    margin-bottom: 19px;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--settings-text);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+
+    padding: 12px 14px;
+
+    color: var(--settings-text);
+    background: var(--settings-input);
+
+    border: 1px solid var(--settings-border);
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 12px;
+
+    outline: none;
+    transition: var(--settings-transition);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: var(--settings-primary);
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.08);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #667085;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 85px;
+}
+
+.form-group small {
+    display: block;
+
+    color: var(--settings-muted);
+    font-size: 10px;
+
+    margin-top: 7px;
+    line-height: 1.6;
+}
+
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.primary-button {
     display: inline-flex;
     justify-content: center;
     align-items: center;
 
-    padding: 10px 16px;
+    padding: 11px 19px;
 
-    background: rgba(167, 139, 250, 0.14);
-    border: 1px solid rgba(167, 139, 250, 0.35);
-    border-radius: 11px;
+    background: var(--settings-primary);
+    color: #10172B;
 
-    color: var(--settings-purple-light);
+    border: none;
+    border-radius: 9px;
+
+    font-family: inherit;
     font-size: 12px;
     font-weight: 700;
 
     cursor: pointer;
-    transition: 0.25s ease;
+    transition: var(--settings-transition);
 }
 
-.upload-button:hover {
-    background: var(--settings-purple);
-    color: #10172B;
-    transform: translateY(-2px);
+.primary-button:hover {
+    background: var(--settings-primary-light);
+    transform: translateY(-1px);
 }
 
-/* =========================================
-   FORM LABELS
-========================================= */
-
-.settings-card label:not(.upload-button) {
-    display: block;
-
-    color: #E5E9F2;
-    font-size: 13px;
-    font-weight: 700;
-
-    margin: 20px 0 9px;
-}
-
-/* =========================================
-   INPUT FIELDS
-========================================= */
-
-.settings-card input:not([type="file"]),
-.settings-card textarea {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-
-    padding: 14px 16px;
-
-    background: rgba(10, 17, 33, 0.65);
-
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-radius: 13px;
-
-    color: var(--settings-white);
-
-    font-family: inherit;
-    font-size: 14px;
-
-    outline: none;
-
-    transition:
-        border-color 0.25s ease,
-        background 0.25s ease,
-        box-shadow 0.25s ease;
-}
-
-.settings-card input:not([type="file"]) {
-    min-height: 49px;
-}
-
-.settings-card textarea {
-    min-height: 115px;
-    resize: vertical;
-    line-height: 1.7;
-}
-
-.settings-card input:focus,
-.settings-card textarea:focus {
-    background: rgba(10, 17, 33, 0.9);
-    border-color: var(--settings-purple);
-
-    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.12);
-}
-
-.settings-card input::placeholder,
-.settings-card textarea::placeholder {
-    color: #748198;
-    opacity: 1;
-}
-
-/* =========================================
-   SMALL HELPER TEXT
-========================================= */
-
-.input-hint {
-    color: var(--settings-muted);
-    font-size: 11px;
-    line-height: 1.6;
-    margin-top: 9px;
-}
-
-/* =========================================
-   PRIMARY BUTTONS
-========================================= */
-
-.settings-card button:not(.logout-button) {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    width: 100%;
-    min-height: 49px;
-
-    margin-top: 22px;
-    padding: 13px 18px;
-
-    border: none;
-    border-radius: 13px;
-
-    background: linear-gradient(
-        110deg,
-        #B49BFF,
-        #9475F0
-    );
-
-    color: #10172B;
-
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 800;
-
-    cursor: pointer;
-
-    box-shadow: 0 7px 20px rgba(139, 108, 232, 0.18);
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        opacity 0.2s ease;
-}
-
-.settings-card button:not(.logout-button):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(139, 108, 232, 0.28);
-}
-
-.settings-card button:not(.logout-button):active {
-    transform: scale(0.98);
-}
-
-.settings-card button:disabled {
-    opacity: 0.55;
+.primary-button:disabled {
+    opacity: 0.6;
     cursor: not-allowed;
     transform: none;
-    box-shadow: none;
 }
 
+
 /* =========================================
-   STATUS MESSAGES
+   MESSAGES
 ========================================= */
 
 .settings-message {
-    min-height: 18px;
-    margin: 13px 0 0;
-
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 11px;
+    margin-top: 12px;
     line-height: 1.6;
-
-    overflow-wrap: anywhere;
 }
+
+.settings-message:empty {
+    display: none;
+}
+
+
+/* =========================================
+   DIVIDERS
+========================================= */
+
+.settings-divider {
+    height: 1px;
+    background: var(--settings-border);
+    margin: 25px 0;
+}
+
 
 /* =========================================
    ACCOUNT INFORMATION
 ========================================= */
 
-.account-info-row {
+.account-information h3 {
+    margin-bottom: 10px;
+}
+
+.account-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 15px;
 
-    padding: 17px 2px;
+    padding: 13px 0;
 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    border-bottom: 1px solid var(--settings-border);
+
+    font-size: 11px;
 }
 
-.account-info-row:last-of-type {
+.account-row:last-child {
     border-bottom: none;
 }
 
-.account-info-row span {
+.account-row span {
     color: var(--settings-muted);
-    font-size: 13px;
 }
 
-.account-info-row strong {
-    color: var(--settings-white);
-    font-size: 13px;
-    font-weight: 700;
-    text-align: right;
+.account-row strong {
+    color: var(--settings-text);
+    font-weight: 600;
     overflow-wrap: anywhere;
 }
 
+
 /* =========================================
-   LOGOUT SECTION
+   FEATURE OPTIONS
+========================================= */
+
+.feature-intro {
+    margin-bottom: 18px;
+}
+
+.feature-intro h3 {
+    margin-bottom: 7px;
+}
+
+.feature-intro p {
+    color: var(--settings-muted);
+    font-size: 11px;
+    line-height: 1.8;
+    margin: 0;
+}
+
+.settings-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    padding: 16px 0;
+
+    border-top: 1px solid var(--settings-border);
+}
+
+.settings-option strong {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.settings-option p {
+    color: var(--settings-muted);
+    font-size: 10px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.coming-soon {
+    flex-shrink: 0;
+
+    color: var(--settings-muted);
+    background: rgba(255, 255, 255, 0.05);
+
+    padding: 6px 9px;
+    border-radius: 7px;
+
+    font-size: 9px;
+}
+
+.settings-action-link {
+    display: inline-block;
+
+    color: var(--settings-primary-light);
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 5px;
+}
+
+.settings-action-link:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================
+   LOGOUT
 ========================================= */
 
 .logout-card {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
-.logout-card > div {
-    flex: 1;
-}
-
-.logout-card h2 {
-    color: var(--settings-white);
-    font-size: 16px;
-    margin: 0 0 7px;
+.logout-card h3 {
+    margin: 0 0 5px;
 }
 
 .logout-card p {
     color: var(--settings-muted);
-    font-size: 12px;
-    line-height: 1.6;
+    font-size: 10px;
     margin: 0;
 }
 
 .logout-button {
-    min-width: 110px;
-    padding: 12px 17px;
+    padding: 10px 18px;
 
-    border: 1px solid rgba(248, 113, 113, 0.35);
-    border-radius: 12px;
+    color: var(--settings-danger);
+    background: rgba(252, 165, 165, 0.08);
 
-    background: rgba(248, 113, 113, 0.10);
+    border: 1px solid rgba(252, 165, 165, 0.18);
+    border-radius: 9px;
 
-    color: #FCA5A5;
     font-family: inherit;
-    font-size: 12px;
-    font-weight: 800;
+    font-size: 11px;
+    font-weight: 600;
 
     cursor: pointer;
-    transition: 0.25s ease;
+    transition: var(--settings-transition);
 }
 
 .logout-button:hover {
-    background: rgba(248, 113, 113, 0.20);
-    border-color: #F87171;
+    background: rgba(252, 165, 165, 0.16);
 }
 
-/* =========================================
-   TOPBAR ADJUSTMENT
-========================================= */
-
-.settings-container + .bottom-navigation {
-    z-index: 100;
+.logout-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
+.logout-card .settings-message {
+    width: 100%;
+}
+
+
 /* =========================================
-   TABLET AND DESKTOP
+   FOOTER
 ========================================= */
 
-@media (min-width: 768px) {
+.settings-footer {
+    text-align: center;
+
+    padding: 25px 10px;
+
+    border-top: 1px solid var(--settings-border);
+
+    color: var(--settings-muted);
+    font-size: 10px;
+}
+
+.settings-footer p {
+    margin: 4px 0;
+}
+
+
+/* =========================================
+   TABLET RESPONSIVE
+========================================= */
+
+@media (max-width: 900px) {
 
     .settings-container {
-        padding-top: 48px;
+        width: 94%;
     }
 
-    .settings-heading {
-        margin-bottom: 38px;
+    .settings-layout {
+        grid-template-columns: 205px minmax(0, 1fr);
+        gap: 17px;
+    }
+
+    .settings-menu-link {
+        padding: 11px 9px;
+        font-size: 11px;
     }
 
     .settings-card {
-        padding: 30px;
-        margin-bottom: 23px;
+        padding: 19px;
     }
 
-    .settings-section-heading {
-        margin-bottom: 29px;
-    }
-
-    .avatar-upload-area {
-        padding: 24px;
-    }
 }
 
+
 /* =========================================
-   MOBILE PHONE DESIGN
+   MOBILE RESPONSIVE
 ========================================= */
 
-@media (max-width: 520px) {
+@media (max-width: 650px) {
 
-    .settings-container {
-        width: calc(100% - 26px);
-        padding-top: 23px;
-        padding-bottom: 110px;
+    .settings-header {
+        min-height: 62px;
+        padding: 0 5%;
     }
 
-    .settings-heading {
-        margin-bottom: 23px;
+    .brand {
+        font-size: 19px;
+    }
+
+    .settings-container {
+        width: 92%;
+        padding-top: 30px;
     }
 
     .settings-heading h1 {
-        font-size: 31px;
+        font-size: 29px;
     }
 
-    .settings-heading > p:last-child {
-        font-size: 13px;
-    }
-
-    .settings-card {
-        padding: 19px 16px;
-        margin-bottom: 15px;
-        border-radius: 19px;
-    }
-
-    .settings-section-heading {
+    .settings-profile-summary {
+        padding: 16px;
         gap: 12px;
-        margin-bottom: 21px;
+        flex-wrap: wrap;
     }
 
-    .settings-icon {
-        width: 43px;
-        height: 43px;
-        min-width: 43px;
-        border-radius: 14px;
+    .summary-avatar {
+        width: 55px;
+        height: 55px;
     }
 
-    .settings-section-heading h2 {
-        font-size: 15px;
+    .summary-details h2 {
+        font-size: 14px;
     }
 
-    .settings-section-heading p {
-        font-size: 11px;
-    }
-
-    .avatar-upload-area {
-        gap: 15px;
-        padding: 14px 12px;
-        border-radius: 15px;
-    }
-
-    #avatarPreview {
-        width: 78px;
-        height: 78px;
-        min-width: 78px;
-    }
-
-    .avatar-upload-info strong {
-        font-size: 13px;
-    }
-
-    .avatar-upload-info p {
+    .summary-details p {
         font-size: 10px;
     }
 
-    .upload-button {
-        padding: 9px 12px;
-        font-size: 11px;
+    .edit-profile-link {
+        margin-left: auto;
     }
 
-    .settings-card input:not([type="file"]),
-    .settings-card textarea {
-        font-size: 13px;
-        padding: 13px;
+    .search-shortcut {
+        display: none;
     }
 
-    .account-info-row {
-        padding: 15px 0;
+    .settings-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
     }
 
-    .account-info-row span,
-    .account-info-row strong {
+    .settings-sidebar {
+        position: static;
+        width: 100%;
+        padding: 14px;
+    }
+
+    .settings-navigation {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .settings-menu-link {
+        min-height: 48px;
+        padding: 9px;
+
+        font-size: 10px;
+        line-height: 1.4;
+    }
+
+    .menu-icon {
+        font-size: 14px;
+        width: 18px;
+    }
+
+    .sidebar-bottom {
+        display: none;
+    }
+
+    .settings-content {
+        width: 100%;
+    }
+
+    .section-heading h2 {
+        font-size: 15px;
+    }
+
+    .section-heading p {
+        font-size: 10px;
+    }
+
+    .settings-card {
+        padding: 17px;
+        border-radius: 15px;
+    }
+
+    .settings-section {
+        margin-bottom: 30px;
+        scroll-margin-top: 20px;
+    }
+
+    .avatar-settings img {
+        width: 65px;
+        height: 65px;
+    }
+
+    .form-group input,
+    .form-group textarea {
         font-size: 12px;
     }
 
     .logout-card {
-        align-items: stretch;
+        align-items: flex-start;
         flex-direction: column;
-        gap: 18px;
     }
 
-    .logout-button {
-        width: 100%;
-        min-height: 46px;
-    }
 }
+
 
 /* =========================================
-   SMALL PHONES
+   SMALL MOBILE
 ========================================= */
 
-@media (max-width: 360px) {
+@media (max-width: 380px) {
 
-    .avatar-upload-area {
+    .settings-navigation {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-menu-link {
+        min-height: 42px;
+    }
+
+    .settings-option {
         align-items: flex-start;
         flex-direction: column;
     }
 
-    #avatarPreview {
-        width: 85px;
-        height: 85px;
-    }
-
-    .settings-card {
-        padding: 16px 13px;
-    }
-
-    .account-info-row {
+    .account-row {
         align-items: flex-start;
         flex-direction: column;
-        gap: 6px;
+        gap: 5px;
     }
 
-    .account-info-row strong {
-        text-align: left;
+}
+
+
+/* =========================================
+   ACCESSIBILITY
+========================================= */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+label:focus-visible {
+    outline: 2px solid var(--settings-primary);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+
+}
+
+/* =====================================
+   EXPORT MY DATA BUTTON
+===================================== */
+
+#exportDataButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 13px 22px;
+    min-height: 46px;
+
+    background: linear-gradient(135deg, #8B5CF6, #6366F1);
+    color: #FFFFFF;
+
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow: 0 5px 18px rgba(99, 102, 241, 0.22);
+
+    transition:
+        background 0.25s ease,
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+/* Hover effect */
+
+#exportDataButton:hover:not(:disabled) {
+    background: linear-gradient(135deg, #A78BFA, #818CF8);
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 8px 22px rgba(99, 102, 241, 0.35);
+}
+
+/* Click effect */
+
+#exportDataButton:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Keyboard focus */
+
+#exportDataButton:focus-visible {
+    outline: 3px solid rgba(167, 139, 250, 0.5);
+    outline-offset: 4px;
+}
+
+/* Loading / disabled */
+
+#exportDataButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+    #exportDataButton {
+        width: 100%;
+        padding: 14px 18px;
     }
 }
+
+/* =====================================
+   ACCOUNT DELETION INFORMATION BUTTON
+===================================== */
+
+#accountDeletionInfoButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 12px 20px;
+    min-height: 44px;
+
+    background: rgba(167, 139, 250, 0.12);
+    color: #C4B5FD;
+
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    border-radius: 12px;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+}
+
+#accountDeletionInfoButton:hover {
+    background: linear-gradient(135deg, #8B5CF6, #6366F1);
+    color: #FFFFFF;
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(99, 102, 241, 0.25);
+}
+
+#accountDeletionInfoButton:active {
+    transform: translateY(0);
+}
+
+#accountDeletionInfoButton:focus-visible {
+    outline: 3px solid rgba(167, 139, 250, 0.5);
+    outline-offset: 3px;
+}
+
+/* Account deletion information panel */
+
+#accountDeletionInfo {
+    margin-top: 18px;
+    padding: 20px;
+
+    background: rgba(16, 23, 43, 0.65);
+    border: 1px solid rgba(167, 139, 250, 0.25);
+    border-radius: 14px;
+
+    color: #E5E7EB;
+    line-height: 1.7;
+}
+
+#accountDeletionInfo[hidden] {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    #accountDeletionInfoButton {
+        width: 100%;
+    }
+}
+
+
