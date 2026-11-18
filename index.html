@@ -1,18 +1,29 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>coreI — Ideas have a place</title>
-    <meta name="description" content="A space for thoughts, plans and meaningful ideas. Discover coreI.">
+    <meta name="theme-color" content="#123B3A">
 
+    <meta name="description"
+        content="coreI is a space to share ideas, discover perspectives and grow together.">
+
+    <title>coreI — Think. Share. Grow.</title>
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
     <link rel="stylesheet" href="./style.css">
+
+    <!-- JavaScript -->
     <script src="./script.js" defer></script>
 </head>
 
@@ -20,254 +31,222 @@
 
     <!-- Navigation -->
     <header class="header">
+
         <nav class="navbar container">
 
-            <a href="index.html" class="logo" aria-label="coreI home">
+            <a href="./index.html" class="logo">
                 core<span>I</span>
             </a>
 
-            <a href="signup.html" class="primary-button">
-     join us <span>I</span>
-</a>
-            <button class="menu-button" id="menuButton"
+            <div class="nav-links" id="navLinks">
+
+                <a href="#about">About</a>
+
+                <a href="#explore">Explore</a>
+
+                
+
+                <a href="./login.html" class="nav-join">
+                    login <span>↗</span>
+                </a>
+
+            </div>
+
+            <!-- Mobile Menu -->
+            <button
+                class="menu-button"
+                id="menuButton"
+                type="button"
                 aria-label="Open navigation menu"
                 aria-expanded="false"
                 aria-controls="navLinks">
+
                 <span></span>
                 <span></span>
                 <span></span>
+
             </button>
 
-            <div class="nav-links" id="navLinks">
-                <a href="#about">About</a>
-                <a href="#purpose">Purpose</a>
-                <a href="#features">Features</a>
-                <a href="signup.html" class="nav-join">Join coreI</a>
-            </div>
-
         </nav>
+
     </header>
 
 
+    <!-- Main Content -->
     <main>
 
-        <!-- Hero Section -->
+        <!-- Hero -->
         <section class="hero container">
 
             <div class="hero-content">
 
-                <div class="hero-label">
-                    <span class="status-dot"></span>
-                    A space for meaningful ideas
-                </div>
+                <span class="hero-label">
+                    A COMMUNITY BUILT AROUND IDEAS
+                </span>
 
                 <h1>
-                    Your thoughts
-                    deserve a
-                    <span>place.</span>
+                    Think freely.
+                    <span>Grow together.</span>
                 </h1>
 
                 <p class="hero-description">
-                    A thoughtful digital space to share ideas,
-                    express yourself, discover perspectives and
-                    connect with people who think differently.
+                    A space to share your ideas, discover new
+                    perspectives and connect through meaningful
+                    conversations.
                 </p>
 
                 <div class="hero-actions">
-                    <a href="signup.html" class="primary-button">
-                        Request to join <span>↗</span>
+
+                    <a href="./signup.html" class="primary-button">
+                        signup <span>↗</span>
                     </a>
 
-                    <a href="#about" class="secondary-button">
-                        Discover coreI
-                    </a>
+                  
+
                 </div>
 
-                <div class="hero-note">
-                    <span class="note-line"></span>
-                    Built for ideas, not endless scrolling.
-                </div>
+                <p class="hero-note">
+                    Ideas have a place. Welcome to coreI.
+                </p>
 
             </div>
 
 
-            <!-- Decorative idea card -->
+            <!-- Simple Idea Visual -->
             <div class="hero-visual">
-
-                <div class="visual-glow"></div>
 
                 <div class="idea-card">
 
-                    <div class="card-top">
-                        <span class="card-label">A thought worth sharing</span>
-                        <span class="card-symbol">✳</span>
-                    </div>
+                    <span class="idea-symbol">✳</span>
 
-                    <div class="idea-mark">“</div>
+                    <p class="idea-label">
+                        YOUR IDEAS MATTER
+                    </p>
 
                     <h2>
-                        Every great possibility
-                        begins with a simple idea.
+                        Every new possibility
+                        starts with a thought.
                     </h2>
 
-                    <div class="card-bottom">
-                        <span>Think freely.</span>
-                        <span class="card-line"></span>
-                        <span>Share meaningfully.</span>
+                    <div class="idea-card-footer">
+                        <span>Think</span>
+                        <span>Share</span>
+                        <span>Grow</span>
                     </div>
 
                 </div>
 
-                <div class="floating-note note-one">
-                    <span>✦</span> Creativity
-                </div>
-
-                <div class="floating-note note-two">
-                    <span>✧</span> New perspectives
-                </div>
-
             </div>
 
         </section>
 
 
-        <!-- About Section -->
-        <section class="section about-section" id="about">
-            <div class="container about-grid">
+        <!-- About -->
+        <section class="about-section" id="about">
 
-                <div class="section-heading">
-                    <span class="eyebrow">01 — ABOUT COREI</span>
-                    <h2>
-                        More than a place
-                        to <span>post.</span>
-                    </h2>
-                </div>
-
-                <div class="about-text">
-                    <p>
-                        coreI is a community where people can share
-                        their thoughts, plans, experiences and ideas
-                        in one meaningful space.
-                    </p>
-
-                    <p>
-                        We believe that the internet can be a place
-                        for useful conversations, creative thinking
-                        and positive connections.
-                    </p>
-                </div>
-
-            </div>
-        </section>
-
-
-        <!-- Purpose Section -->
-        <section class="section purpose-section" id="purpose">
             <div class="container">
 
-                <span class="eyebrow">02 — OUR PURPOSE</span>
-
-                <h2 class="purpose-title">
-                    Less noise.
-                    <span>More meaning.</span>
-                </h2>
-
-                <p class="purpose-description">
-                    We want to create a digital environment where
-                    people can enjoy sharing and discovering ideas
-                    without feeling pressured to spend their whole
-                    day online.
-                </p>
-
-            </div>
-        </section>
-
-
-        <!-- Features Section -->
-        <section class="section features-section" id="features">
-            <div class="container">
-
-                <div class="features-heading">
-                    <div>
-                        <span class="eyebrow">03 — WHAT YOU CAN DO</span>
-                        <h2>Ideas at the <span>centre.</span></h2>
-                    </div>
-
-                    <p>
-                        Simple tools. Meaningful experiences.
-                        A community built around ideas.
-                    </p>
-                </div>
-
-
-                <div class="feature-grid">
-
-                    <article class="feature-card feature-large">
-                        <div class="feature-icon">✳</div>
-                        <span class="feature-number">01</span>
-                        <h3>Share Ideas</h3>
-                        <p>
-                            Publish your thoughts, plans and
-                            creative ideas for the community
-                            to discover.
-                        </p>
-                        <span class="feature-arrow">↗</span>
-                    </article>
-
-
-                    <article class="feature-card">
-                        <div class="feature-icon">◎</div>
-                        <span class="feature-number">02</span>
-                        <h3>Discover People</h3>
-                        <p>
-                            Explore different perspectives
-                            and learn from other members.
-                        </p>
-                        <span class="feature-arrow">↗</span>
-                    </article>
-
-
-                    <article class="feature-card">
-                        <div class="feature-icon">☆</div>
-                        <span class="feature-number">03</span>
-                        <h3>Appreciate Ideas</h3>
-                        <p>
-                            Give a star to ideas that you
-                            find interesting or valuable.
-                        </p>
-                        <span class="feature-arrow">↗</span>
-                    </article>
-
-                </div>
-            </div>
-        </section>
-
-
-        <!-- Join Section -->
-        <section class="join-section">
-            <div class="container join-content">
-
-                <span class="eyebrow">YOUR SPACE STARTS HERE</span>
+                <span class="section-label">
+                    ABOUT COREI
+                </span>
 
                 <h2>
-                    Have an idea?
-                    <span>Give it a place.</span>
+                    More than a platform.
+                    <span>A place to belong.</span>
                 </h2>
 
                 <p>
-                    Become part of a community that values
-                    thoughts, creativity and meaningful ideas.
+                    coreI brings people together through ideas,
+                    creativity and learning. Share what matters,
+                    explore what inspires you and discover
+                    something new.
                 </p>
 
-                <a href="signup.html" class="join-button">
-                    Request access <span>↗</span>
-                </a>
+            </div>
 
-                <span class="join-note">
-                    Membership requires approval.
+        </section>
+
+
+        <!-- Explore -->
+        <section class="explore-section" id="explore">
+
+            <div class="container">
+
+                <span class="section-label">
+                    WHAT MAKES COREI
                 </span>
 
+                <div class="explore-grid">
+
+                    <article class="explore-card">
+
+                        <span>01</span>
+
+                        <h3>Express</h3>
+
+                        <p>
+                            Share your thoughts and ideas freely.
+                        </p>
+
+                    </article>
+
+
+                    <article class="explore-card">
+
+                        <span>02</span>
+
+                        <h3>Discover</h3>
+
+                        <p>
+                            Explore different perspectives and interests.
+                        </p>
+
+                    </article>
+
+
+                    <article class="explore-card">
+
+                        <span>03</span>
+
+                        <h3>Connect</h3>
+
+                        <p>
+                            Learn and grow through meaningful connections.
+                        </p>
+
+                    </article>
+
+                </div>
+
             </div>
+
+        </section>
+
+
+        <!-- Join -->
+        <section class="join-section">
+
+            <div class="container">
+
+                <h2>
+                    Your ideas deserve
+                    <span>a place.</span>
+                </h2>
+
+                <p>
+                    Start your journey with coreI.
+                </p>
+
+                <a href="./signup.html" class="primary-button">
+                    i am new to coreI signup<span>↗</span>
+                </a>
+
+                <small>
+                    Membership requires approval.
+                </small>
+
+            </div>
+
         </section>
 
     </main>
@@ -275,20 +254,25 @@
 
     <!-- Footer -->
     <footer class="footer">
+
         <div class="container footer-content">
 
-            <a href="index.html" class="logo footer-logo">
+            <a href="./index.html" class="logo">
                 core<span>I</span>
             </a>
 
-            <p>Ideas have a place.</p>
+            <p>
+                Think freely. Share meaningfully.
+            </p>
 
-            <span class="copyright">
-                © 2026 coreI. Built around ideas.
+            <span>
+                © 2026 coreI. All rights reserved.
             </span>
 
         </div>
+
     </footer>
 
 </body>
+
 </html>

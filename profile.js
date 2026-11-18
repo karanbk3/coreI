@@ -1,338 +1,300 @@
 
 import { supabase } from "./supabase.js";
 
-// =========================================
-// 1. PAGE ELEMENTS
-// =========================================
+// =============================================
+// coreI — PROFILE SYSTEM
+// Loads the signed-in member's profile and ideas
+// =============================================
 
-// Profile elements
+
+// =============================================
+// 1. PAGE ELEMENTS
+// =============================================
 
 const profilePhoto = document.getElementById("profilePhoto");
 const profileName = document.getElementById("profileName");
 const profileMemberCode = document.getElementById("profileMemberCode");
+const profileStatus = document.getElementById("profileStatus");
+
 const profileBio = document.getElementById("profileBio");
+const sidebarBio = document.getElementById("sidebarBio");
 
-// Personal information
+const profileJoinedDate = document.getElementById("profileJoinedDate");
+const aboutJoinedDate = document.getElementById("aboutJoinedDate");
 
-const infoDisplayName = document.getElementById("infoDisplayName");
-const infoMemberCode = document.getElementById("infoMemberCode");
-const infoStatus = document.getElementById("infoStatus");
-const infoJoinedDate = document.getElementById("infoJoinedDate");
-
-// Member ideas
+const profileLocation = document.getElementById("profileLocation");
 
 const myIdeasList = document.getElementById("myIdeasList");
 
-// Admin dashboard
-
-const adminDashboardButton =
-    document.getElementById("adminDashboardButton");
+const adminCard = document.getElementById("adminCard");
+const adminDashboardButton = document.getElementById("adminDashboardButton");
 
 
-// =========================================
+// =============================================
 // 2. DEFAULT SETTINGS
-// =========================================
+// =============================================
 
-const DEFAULT_AVATAR = "./images/default-profile.png";
-
-let currentUser = null;
-let currentProfile = null;
+const DEFAULT_PROFILE_PHOTO = "./images/default-profile.png";
 
 
-// =========================================
-// 3. SHOW PROFILE MESSAGE
-// =========================================
+// These sections will remain hidden until
+// their database and privacy systems are ready.
 
-function showProfileError(message) {
+const unfinishedSections = [
+    "learningGoalsSection",
+    "skillsSection",
+    "interestsSection",
+    "exploreTopicsSection",
+    "careerSection",
+    "hobbiesSection",
+    "learningProgressSection",
+    "milestonesSection",
+    "contributionsSection",
+    "weeklyReflectionSection",
+    "journalSection",
+    "resourcesSection",
+    "savedIdeasSection"
+];
 
-    if (profileName) {
-        profileName.textContent = "Profile unavailable";
-    }
+function hideUnfinishedSections() {
+    unfinishedSections.forEach((sectionId) => {
+        const section = document.getElementById(sectionId);
 
-    if (profileBio) {
-        profileBio.textContent = message;
-    }
-
-    if (myIdeasList) {
-        myIdeasList.textContent = message;
-    }
-
-    if (adminDashboardButton) {
-        adminDashboardButton.hidden = true;
-    }
+        if (section) {
+            section.hidden = true;
+        }
+    });
 }
 
 
-// =========================================
-// 4. CHECK MEMBER LOGIN
-// =========================================
+// =============================================
+// 3. HELPER FUNCTIONS
+// =============================================
 
-async function checkLogin() {
+// Display a date in a simple format.
+
+function formatDate(dateValue) {
+    if (!dateValue) {
+        return "Not available";
+    }
+
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+        return "Not available";
+    }
+
+    return date.toLocaleDateString("en", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    });
+}
+
+
+// Safely display text inside an element.
+
+function setText(element, value, fallback = "") {
+    if (!element) return;
+
+    element.textContent = value || fallback;
+}
+
+
+// Display a message when there are no ideas.
+
+function showIdeasMessage(message) {
+    if (!myIdeasList) return;
+
+    const messageElement = document.createElement("div");
+
+    messageElement.className = "empty-card";
+    messageElement.textContent = message;
+
+    myIdeasList.replaceChildren(messageElement);
+}
+
+
+// =============================================
+// 4. CHECK MEMBER LOGIN
+// =============================================
+
+async function checkMemberLogin() {
 
     const {
-        data: authData,
-        error: authError
+        data: { user },
+        error
     } = await supabase.auth.getUser();
 
-
-    if (authError || !authData.user) {
-
+    if (error || !user) {
         window.location.href = "./login.html";
-
-        return false;
+        return null;
     }
 
-
-    currentUser = authData.user;
-
-    return true;
+    return user;
 }
 
 
-// =========================================
+// =============================================
 // 5. LOAD MEMBER PROFILE
-// =========================================
+// =============================================
 
-async function loadProfile() {
+async function loadMemberProfile(user) {
 
-    try {
+    const { data: profile, error } = await supabase
+        .from("profiles")
+        .select(`
+            display_name,
+            member_code,
+            status,
+            role,
+            created_at,
+            bio,
+            avatar_url
+        `)
+        .eq("id", user.id)
+        .single();
 
-        // First check login.
+    if (error || !profile) {
+        console.error("Profile loading error:", error);
 
-        const isLoggedIn = await checkLogin();
-
-        if (!isLoggedIn) return;
-
-
-        // Load profile from Supabase.
-
-        const {
-            data: profile,
-            error: profileError
-        } = await supabase
-            .from("profiles")
-            .select(`
-                display_name,
-                member_code,
-                status,
-                role,
-                created_at,
-                bio,
-                avatar_url
-            `)
-            .eq("id", currentUser.id)
-            .single();
-
-
-        if (profileError || !profile) {
-
-            console.error(
-                "Profile loading error:",
-                profileError
-            );
-
-            showProfileError(
-                "We could not load your profile information."
-            );
-
-            return;
-        }
-
-
-        currentProfile = profile;
-
-
-        // Display profile information.
-
-        displayProfile(profile);
-
-
-        // Display administrator button when permitted.
-
-        displayAdminButton(profile);
-
-
-        // Load member's ideas.
-
-        await loadMyIdeas(currentUser.id);
-
-    } catch (error) {
-
-        console.error("Profile error:", error);
-
-        showProfileError(
-            "Something went wrong while loading your profile."
+        setText(
+            profileName,
+            "Profile unavailable"
         );
 
-    }
+        setText(
+            profileBio,
+            "We could not load your profile information."
+        );
 
-}
-
-
-// =========================================
-// 6. DISPLAY PROFILE INFORMATION
-// =========================================
-
-function displayProfile(profile) {
-
-    // Member name.
-
-    if (profileName) {
-
-        profileName.textContent =
-            profile.display_name || "coreI Member";
-
+        return null;
     }
 
 
-    // Member ID.
+    // =========================================
+    // MEMBER NAME
+    // =========================================
 
-    if (profileMemberCode) {
+    setText(
+        profileName,
+        profile.display_name,
+        "coreI Member"
+    );
 
-        profileMemberCode.textContent =
-            profile.member_code || "Member ID unavailable";
 
-    }
+    // =========================================
+    // MEMBER CODE
+    // =========================================
+
+    setText(
+        profileMemberCode,
+        profile.member_code,
+        "Member code unavailable"
+    );
 
 
-    // Profile picture.
+    // =========================================
+    // MEMBER STATUS
+    // =========================================
+
+    setText(
+        profileStatus,
+        profile.status || "Member"
+    );
+
+
+    // =========================================
+    // MEMBER BIO
+    // =========================================
+
+    const bioText = profile.bio || "No introduction added yet.";
+
+    setText(profileBio, bioText);
+    setText(sidebarBio, bioText);
+
+
+    // =========================================
+    // JOINING DATE
+    // =========================================
+
+    const joinedDate = formatDate(profile.created_at);
+
+    setText(profileJoinedDate, joinedDate);
+    setText(aboutJoinedDate, joinedDate);
+
+
+    // =========================================
+    // PROFILE PHOTO
+    // =========================================
 
     if (profilePhoto) {
 
-        profilePhoto.src =
-            profile.avatar_url || DEFAULT_AVATAR;
-
-        profilePhoto.alt =
-            `${profile.display_name || "Member"}'s profile picture`;
-
-
-        // Use default picture if saved image fails.
-
-        profilePhoto.onerror = () => {
-
-            profilePhoto.onerror = null;
-
-            profilePhoto.src = DEFAULT_AVATAR;
-
+        profilePhoto.onerror = function () {
+            this.onerror = null;
+            this.src = DEFAULT_PROFILE_PHOTO;
         };
 
+        profilePhoto.src =
+            profile.avatar_url || DEFAULT_PROFILE_PHOTO;
+
+        profilePhoto.alt =
+            `${profile.display_name || "Member"}'s profile photo`;
     }
 
 
-    // Member bio.
+    // =========================================
+    // LOCATION
+    // =========================================
 
-    if (profileBio) {
+    // Location is not currently stored in the
+    // profiles table, so do not display fake data.
 
-        profileBio.textContent =
-            profile.bio ||
-            "A member of the coreI creative community.";
-
+    if (profileLocation) {
+        profileLocation.hidden = true;
     }
 
 
-    // =====================================
-    // PERSONAL INFORMATION
-    // =====================================
+    // =========================================
+    // ADMIN ACCESS BUTTON
+    // =========================================
 
-    if (infoDisplayName) {
-
-        infoDisplayName.textContent =
-            profile.display_name || "Not provided";
-
+    if (adminCard) {
+        adminCard.hidden = true;
     }
-
-
-    if (infoMemberCode) {
-
-        infoMemberCode.textContent =
-            profile.member_code || "Not available";
-
-    }
-
-
-    if (infoStatus) {
-
-        infoStatus.textContent =
-            profile.status || "Unknown";
-
-    }
-
-
-    if (infoJoinedDate) {
-
-        infoJoinedDate.textContent =
-            profile.created_at
-                ? new Date(profile.created_at).toLocaleDateString()
-                : "Not available";
-
-    }
-
-}
-
-
-// =========================================
-// 7. ADMIN DASHBOARD BUTTON
-// =========================================
-
-function displayAdminButton(profile) {
-
-    if (!adminDashboardButton) return;
-
-
-    // Only approved administrators see this button.
 
     const isApprovedAdmin =
         profile.role === "admin" &&
         profile.status === "approved";
 
+    if (isApprovedAdmin && adminCard) {
 
-    adminDashboardButton.hidden = !isApprovedAdmin;
+        adminCard.hidden = false;
 
-}
+        if (adminDashboardButton) {
 
+            adminDashboardButton.addEventListener("click", () => {
+                window.location.href = "./admin.html";
+            });
 
-// =========================================
-// 8. ADMIN DASHBOARD NAVIGATION
-// =========================================
-
-if (adminDashboardButton) {
-
-    adminDashboardButton.addEventListener("click", () => {
-
-        if (
-            currentProfile?.role !== "admin" ||
-            currentProfile?.status !== "approved"
-        ) {
-
-            adminDashboardButton.hidden = true;
-
-            return;
         }
+    }
 
-
-        window.location.href = "./admin.html";
-
-    });
-
+    return profile;
 }
 
 
-// =========================================
-// 9. LOAD MY SHARED IDEAS
-// =========================================
+// =============================================
+// 6. LOAD MEMBER'S PUBLISHED IDEAS
+// =============================================
 
-async function loadMyIdeas(memberId) {
+async function loadMemberIdeas(user) {
 
     if (!myIdeasList) return;
 
-
     myIdeasList.textContent = "Loading your ideas...";
 
-
-    const {
-        data: ideas,
-        error
-    } = await supabase
+    const { data: ideas, error } = await supabase
         .from("ideas")
         .select(`
             id,
@@ -340,144 +302,130 @@ async function loadMyIdeas(memberId) {
             content,
             created_at
         `)
-        .eq("member_id", memberId)
+        .eq("member_id", user.id)
         .order("created_at", { ascending: false });
 
 
+    // =========================================
+    // HANDLE DATABASE ERROR
+    // =========================================
+
     if (error) {
 
-        console.error(
-            "My ideas loading error:",
-            error
-        );
+        console.error("Ideas loading error:", error);
 
-        myIdeasList.textContent =
-            "We could not load your ideas. Please try again.";
+        showIdeasMessage(
+            "We could not load your ideas. Please try again later."
+        );
 
         return;
     }
 
 
-    myIdeasList.replaceChildren();
-
-
-    // =====================================
-    // NO IDEAS AVAILABLE
-    // =====================================
+    // =========================================
+    // CHECK EMPTY IDEAS
+    // =========================================
 
     if (!ideas || ideas.length === 0) {
 
-        const emptyCard = document.createElement("div");
-
-        emptyCard.className = "empty-card";
-
-
-        const icon = document.createElement("div");
-
-        icon.className = "empty-icon";
-
-        icon.textContent = "✧";
-
-
-        const heading = document.createElement("h3");
-
-        heading.textContent = "No ideas shared yet";
-
-
-        const description = document.createElement("p");
-
-        description.textContent =
-            "Your published ideas will appear here.";
-
-
-        emptyCard.append(
-            icon,
-            heading,
-            description
+        showIdeasMessage(
+            "You haven't published any ideas yet. Your shared ideas will appear here."
         );
-
-
-        myIdeasList.appendChild(emptyCard);
 
         return;
     }
 
 
-    // =====================================
-    // DISPLAY MEMBER IDEAS
-    // =====================================
+    // =========================================
+    // DISPLAY IDEAS
+    // =========================================
 
-    ideas.forEach(idea => {
+    const ideasContainer = document.createDocumentFragment();
 
-        const card = document.createElement("article");
+    ideas.forEach((idea) => {
 
-        card.className = "idea-card";
+        // Create idea card.
 
+        const ideaCard = document.createElement("article");
 
-        // Publication date.
-
-        const date = document.createElement("small");
-
-        date.className = "idea-date";
-
-        date.textContent = idea.created_at
-            ? new Date(idea.created_at).toLocaleDateString()
-            : "";
+        ideaCard.className = "idea-card";
 
 
         // Idea title.
 
         const title = document.createElement("h3");
 
-        title.textContent =
-            idea.title || "Untitled idea";
+        title.textContent = idea.title || "Untitled idea";
 
 
-        // Idea description.
+        // Idea content.
 
         const content = document.createElement("p");
 
-        content.className = "idea-content";
+        content.textContent =
+            idea.content || "No description provided.";
 
-        content.textContent = idea.content || "";
+
+        // Publishing date.
+
+        const date = document.createElement("span");
+
+        date.className = "idea-date";
+
+        date.textContent = formatDate(idea.created_at);
 
 
-        // Add idea content.
+        // Add elements to card.
 
-        card.append(
-            date,
+        ideaCard.append(
             title,
-            content
+            content,
+            date
         );
 
-
-        myIdeasList.appendChild(card);
+        ideasContainer.appendChild(ideaCard);
 
     });
 
+
+    // Show all ideas.
+
+    myIdeasList.replaceChildren(ideasContainer);
 }
 
 
-// =========================================
-// 10. START PROFILE PAGE
-// =========================================
+// =============================================
+// 7. START PROFILE PAGE
+// =============================================
 
 async function startProfilePage() {
 
-    // Hide admin button until account is checked.
+    // Hide unfinished sections.
 
-    if (adminDashboardButton) {
-        adminDashboardButton.hidden = true;
-    }
+    hideUnfinishedSections();
 
 
-    // Load profile and member ideas.
+    // Check login.
 
-    await loadProfile();
+    const user = await checkMemberLogin();
+
+    if (!user) return;
+
+
+    // Load profile information.
+
+    await loadMemberProfile(user);
+
+
+    // Load published ideas.
+
+    await loadMemberIdeas(user);
 
 }
 
 
-// Start profile page.
+// =============================================
+// 8. RUN PROFILE SYSTEM
+// =============================================
 
 startProfilePage();

@@ -1,124 +1,479 @@
 
 import { supabase } from "./supabase.js";
 
-// =========================================
+// =============================================
 // 1. PAGE ELEMENTS
-// =========================================
+// =============================================
 
-// Navigation
+// Main sections
+const homeSection = document.getElementById("homeSection");
 
-const navigationButtons = document.querySelectorAll(".nav-button");
-const pageSections = document.querySelectorAll(".page-section");
+// Personal welcome
+const personalGreeting = document.getElementById("personalGreeting");
+const personalWelcomeMessage = document.getElementById("personalWelcomeMessage");
 
-const exploreIdeasButton =
-    document.getElementById("exploreIdeasButton");
-
-// Idea elements
-
+// Idea form
 const ideaForm = document.getElementById("ideaForm");
 const ideaTitle = document.getElementById("ideaTitle");
 const ideaContent = document.getElementById("ideaContent");
+const ideaFormMessage = document.getElementById("ideaFormMessage");
+const publishIdeaButton = document.getElementById("publishIdeaButton");
 
-const publishIdeaButton =
-    document.getElementById("publishIdeaButton");
-
-const ideaFormMessage =
-    document.getElementById("ideaFormMessage");
-
+// Community ideas
 const ideasList = document.getElementById("ideasList");
+const featuredIdeasList = document.getElementById("featuredIdeasList");
 
-const featuredIdeasList =
-    document.getElementById("featuredIdeasList");
+// Announcements
+const announcementsList = document.getElementById("announcementsList");
 
-// Announcement elements
+// Notifications
+const notificationButton = document.getElementById("notificationButton");
+const notificationPanel = document.getElementById("notificationPanel");
+const closeNotifications = document.getElementById("closeNotifications");
+const notificationCount = document.getElementById("notificationCount");
+const notificationList = document.getElementById("notificationList");
 
-const announcementsList =
-    document.getElementById("announcementsList");
+// Theme
+const themeToggleButton = document.getElementById("themeToggleButton");
 
-// Notification elements
-
-const notificationButton =
-    document.getElementById("notificationButton");
-
-const notificationPanel =
-    document.getElementById("notificationPanel");
-
-const closeNotifications =
-    document.getElementById("closeNotifications");
-
-const notificationCount =
-    document.getElementById("notificationCount");
-
-const notificationList =
-    document.getElementById("notificationList");
+// Default profile image
+const DEFAULT_AVATAR = "./images/default-profile.png";
 
 
-// =========================================
+// =============================================
 // 2. MEMBER INFORMATION
-// =========================================
+// =============================================
 
 let currentUser = null;
 let currentProfile = null;
 
-const DEFAULT_AVATAR = "./images/default-profile.png";
+
+// =============================================
+// 3. THEME SWITCHER
+// =============================================
+
+const systemTheme = window.matchMedia
+    ? window.matchMedia("(prefers-color-scheme: dark)")
+    : null;
 
 
-// =========================================
-// 3. MESSAGE DISPLAY
-// =========================================
+// Read the saved theme preference.
+function getSavedTheme() {
 
-function showMessage(message, type = "") {
+    try {
 
-    if (!ideaFormMessage) return;
+        const savedTheme = localStorage.getItem("coreI-theme");
 
-    ideaFormMessage.textContent = message;
+        if (["light", "dark", "system"].includes(savedTheme)) {
+            return savedTheme;
+        }
 
-    ideaFormMessage.className = "form-message";
+    } catch (error) {
 
-    if (type) {
-        ideaFormMessage.classList.add(type);
+        console.warn("Unable to read theme preference:", error);
+
+    }
+
+    return "system";
+
+}
+
+
+// Decide which theme should be displayed.
+function getActiveTheme(preference) {
+
+    if (preference === "light" || preference === "dark") {
+        return preference;
+    }
+
+    return systemTheme?.matches ? "dark" : "light";
+
+}
+
+
+// Apply the selected theme.
+function applyTheme(preference = getSavedTheme()) {
+
+    const activeTheme = getActiveTheme(preference);
+
+    document.body.classList.toggle(
+        "dark-theme",
+        activeTheme === "dark"
+    );
+
+    // Update theme button.
+    if (themeToggleButton) {
+
+        const icon = themeToggleButton.querySelector("i");
+
+        if (icon) {
+
+            icon.className = activeTheme === "dark"
+                ? "fa-solid fa-sun"
+                : "fa-solid fa-moon";
+
+        }
+
+        themeToggleButton.setAttribute(
+            "aria-label",
+            activeTheme === "dark"
+                ? "Switch to light mode"
+                : "Switch to dark mode"
+        );
+
+    }
+
+    // Update browser theme colour.
+    const themeColor = document.querySelector(
+        'meta[name="theme-color"]'
+    );
+
+    if (themeColor) {
+
+        themeColor.content = activeTheme === "dark"
+            ? "#101D1C"
+            : "#123B3A";
+
     }
 
 }
 
 
-// =========================================
-// 4. PAGE NAVIGATION
-// =========================================
+// Apply the saved theme when the page opens.
+applyTheme();
+
+
+// Switch between light and dark.
+if (themeToggleButton) {
+
+    themeToggleButton.addEventListener("click", () => {
+
+        const currentTheme = document.body.classList.contains("dark-theme")
+            ? "dark"
+            : "light";
+
+        const newTheme = currentTheme === "dark"
+            ? "light"
+            : "dark";
+
+        try {
+
+            // Save the user's new preference.
+            localStorage.setItem("coreI-theme", newTheme);
+
+        } catch (error) {
+
+            console.warn("Unable to save theme:", error);
+
+        }
+
+        applyTheme(newTheme);
+
+    });
+
+}
+
+
+// Update the page if the device theme changes
+// and the saved preference is System.
+if (systemTheme) {
+
+    systemTheme.addEventListener("change", () => {
+
+        if (getSavedTheme() === "system") {
+            applyTheme("system");
+        }
+
+    });
+
+}
+
+
+// =============================================
+// 4. HELPER FUNCTIONS
+// =============================================
+
+// Display a message.
+function showMessage(element, message, type = "") {
+
+    if (!element) return;
+
+    element.textContent = message;
+    element.className = "form-message";
+
+    if (type) {
+        element.classList.add(type);
+    }
+
+}
+
+
+// Format dates.
+function formatDate(date) {
+
+    if (!date) return "";
+
+    const formattedDate = new Date(date);
+
+    if (Number.isNaN(formattedDate.getTime())) {
+        return "";
+    }
+
+    return formattedDate.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+    });
+
+}
+
+
+// Create an empty message.
+function createEmptyMessage(message) {
+
+    const container = document.createElement("div");
+
+    container.className = "empty-card";
+
+    const paragraph = document.createElement("p");
+
+    paragraph.textContent = message;
+
+    container.appendChild(paragraph);
+
+    return container;
+
+}
+
+
+// Create an element with safe text.
+function createTextElement(tagName, className, text) {
+
+    const element = document.createElement(tagName);
+
+    if (className) {
+        element.className = className;
+    }
+
+    element.textContent = text || "";
+
+    return element;
+
+}
+
+
+// Get today's date as a number.
+function getTodayKey() {
+
+    const today = new Date();
+
+    return Number(
+        `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}`
+    );
+
+}
+
+
+// =============================================
+// 5. PERSONAL WELCOME
+// =============================================
+
+function updatePersonalWelcome(profile) {
+
+    if (!personalGreeting || !personalWelcomeMessage) return;
+
+    const hour = new Date().getHours();
+
+    let greeting = "Welcome";
+
+    if (hour < 12) {
+
+        greeting = "Good morning";
+
+    } else if (hour < 17) {
+
+        greeting = "Good afternoon";
+
+    } else {
+
+        greeting = "Good evening";
+
+    }
+
+    const displayName =
+        profile?.display_name?.trim() || "Explorer";
+
+    personalGreeting.textContent =
+        `${greeting}, ${displayName}!`;
+
+    personalWelcomeMessage.textContent =
+        "Every day is an opportunity to discover something new. Explore your interests, share your thoughts and connect with others.";
+
+}
+
+
+// =============================================
+// 6. IDEA OF THE DAY
+// =============================================
+
+const dailyIdeas = [
+
+    {
+        category: "CURIOSITY",
+        title: "Small questions can lead to big discoveries.",
+        description: "Stay curious and take time to understand the world around you."
+    },
+
+    {
+        category: "KNOWLEDGE",
+        title: "Understanding is more valuable than memorising.",
+        description: "Take time to understand how things work and why they matter."
+    },
+
+    {
+        category: "CREATIVITY",
+        title: "Your next great idea might start with a question.",
+        description: "Explore different possibilities and give yourself the freedom to think differently."
+    },
+
+    {
+        category: "TECHNOLOGY",
+        title: "Technology creates new possibilities.",
+        description: "Discover how technology can solve problems and improve everyday life."
+    },
+
+    {
+        category: "DISCOVERY",
+        title: "Explore what genuinely interests you.",
+        description: "You can discover new interests by looking beyond what you already know."
+    },
+
+    {
+        category: "KNOWLEDGE",
+        title: "Every question is an opportunity to discover.",
+        description: "Never stop asking why. Curiosity opens the door to new ideas."
+    },
+
+    {
+        category: "CREATIVITY",
+        title: "Don't wait for the perfect moment to begin.",
+        description: "Start with what you have and improve your ideas along the way."
+    },
+
+    {
+        category: "PERSPECTIVE",
+        title: "Different perspectives help us understand more.",
+        description: "Listen to other people and consider ideas from different points of view."
+    },
+
+    {
+        category: "DISCOVERY",
+        title: "Look beyond what you already know.",
+        description: "A new interest can introduce you to possibilities you never expected."
+    },
+
+    {
+        category: "COMMUNITY",
+        title: "Sharing an idea can inspire someone else.",
+        description: "Your thoughts and experiences may help another person see something differently."
+    },
+
+    {
+        category: "INNOVATION",
+        title: "Good ideas often begin with everyday problems.",
+        description: "Notice the small challenges around you. They might inspire something useful."
+    },
+
+    {
+        category: "SELF DISCOVERY",
+        title: "Give yourself permission to explore.",
+        description: "Your interests can change. Discovering something new is always worthwhile."
+    }
+
+];
+
+
+function updateIdeaOfTheDay() {
+
+    const ideaContainer = document.getElementById("ideaOfTheDay");
+
+    if (!ideaContainer) return;
+
+    const ideaIndex = getTodayKey() % dailyIdeas.length;
+
+    const selectedIdea = dailyIdeas[ideaIndex];
+
+    ideaContainer.innerHTML = "";
+
+    const category = createTextElement(
+        "p",
+        "idea-category",
+        selectedIdea.category
+    );
+
+    const title = createTextElement(
+        "h3",
+        "",
+        selectedIdea.title
+    );
+
+    const description = createTextElement(
+        "p",
+        "",
+        selectedIdea.description
+    );
+
+    ideaContainer.append(
+        category,
+        title,
+        description
+    );
+
+}
+
+
+// =============================================
+// 7. PAGE NAVIGATION
+// =============================================
 
 function openSection(sectionId) {
 
-    if (!sectionId) return;
+    const targetSection = document.getElementById(sectionId);
 
-    const selectedSection =
-        document.getElementById(sectionId);
-
-    if (!selectedSection) return;
-
-    pageSections.forEach(section => {
-
-        section.classList.remove("active");
-        section.hidden = true;
-
-    });
-
-    navigationButtons.forEach(button => {
-
-        button.classList.remove("active");
-
-    });
-
-    selectedSection.hidden = false;
-    selectedSection.classList.add("active");
-
-    const selectedButton = document.querySelector(
-        `.nav-button[data-page="${sectionId}"]`
-    );
-
-    if (selectedButton) {
-        selectedButton.classList.add("active");
+    // Only open sections that exist on this page.
+    if (
+        !targetSection ||
+        !targetSection.classList.contains("page-section")
+    ) {
+        return;
     }
 
+    // Hide all page sections.
+    document.querySelectorAll(".page-section").forEach(section => {
+
+        section.classList.remove("active");
+
+    });
+
+    // Show selected section.
+    targetSection.classList.add("active");
+
+    // Update navigation buttons.
+    document.querySelectorAll(".nav-button[data-page]").forEach(button => {
+
+        button.classList.toggle(
+            "active",
+            button.dataset.page === sectionId
+        );
+
+    });
+
+    // Close notifications.
+    if (notificationPanel) {
+        notificationPanel.hidden = true;
+    }
+
+    // Return to the top.
     window.scrollTo({
         top: 0,
         behavior: "smooth"
@@ -127,17 +482,15 @@ function openSection(sectionId) {
 }
 
 
-// =========================================
-// 5. NAVIGATION BUTTON EVENTS
-// =========================================
+// Handle buttons that open sections.
+document.querySelectorAll("[data-page]").forEach(button => {
 
-navigationButtons.forEach(button => {
+    button.addEventListener("click", event => {
 
-    // Links to other pages work normally.
+        // Do not intercept normal links.
+        if (button.tagName === "A") return;
 
-    if (!button.dataset.page) return;
-
-    button.addEventListener("click", () => {
+        event.preventDefault();
 
         openSection(button.dataset.page);
 
@@ -146,60 +499,35 @@ navigationButtons.forEach(button => {
 });
 
 
-if (exploreIdeasButton) {
-
-    exploreIdeasButton.addEventListener("click", () => {
-
-        openSection("ideasSection");
-
-    });
-
+// Open Home when main.html loads.
+if (homeSection) {
+    openSection("homeSection");
 }
 
 
-// Open home page by default.
-
-openSection("homeSection");
-
-
-// =========================================
-// 6. CHECK MEMBER ACCESS
-// =========================================
+// =============================================
+// 8. CHECK MEMBER ACCESS
+// =============================================
 
 async function checkMemberAccess() {
 
     try {
 
-        // Check logged-in user.
+        // Get signed-in user.
+        const { data: userData, error: userError } =
+            await supabase.auth.getUser();
 
-        const {
-            data: authData,
-            error: authError
-        } = await supabase.auth.getUser();
+        if (userError) throw userError;
 
+        currentUser = userData.user;
 
-        if (authError || !authData.user) {
+        // No signed-in user.
+        if (!currentUser) {
 
-            currentUser = null;
             currentProfile = null;
-
-            showMessage(
-                "Please sign in to share ideas.",
-                "error"
-            );
 
             if (ideaForm) {
                 ideaForm.hidden = true;
-            }
-
-            if (ideasList) {
-                ideasList.textContent =
-                    "Please sign in to view community ideas.";
-            }
-
-            if (featuredIdeasList) {
-                featuredIdeasList.textContent =
-                    "Please sign in to explore community ideas.";
             }
 
             if (notificationButton) {
@@ -210,16 +538,8 @@ async function checkMemberAccess() {
 
         }
 
-
-        currentUser = authData.user;
-
-
-        // Load member profile.
-
-        const {
-            data: profile,
-            error: profileError
-        } = await supabase
+        // Get member profile.
+        const { data: profile, error: profileError } = await supabase
             .from("profiles")
             .select(`
                 display_name,
@@ -232,77 +552,36 @@ async function checkMemberAccess() {
             .eq("id", currentUser.id)
             .single();
 
-
-        if (profileError || !profile) {
-
-            console.error(
-                "Profile loading error:",
-                profileError
-            );
-
-            currentProfile = null;
-
-            showMessage(
-                "We could not load your member profile.",
-                "error"
-            );
-
-            if (ideaForm) {
-                ideaForm.hidden = true;
-            }
-
-            if (ideasList) {
-                ideasList.textContent =
-                    "Your profile could not be loaded.";
-            }
-
-            if (notificationButton) {
-                notificationButton.disabled = true;
-            }
-
-            return false;
-
-        }
-
+        if (profileError) throw profileError;
 
         currentProfile = profile;
 
+        // Update welcome message.
+        updatePersonalWelcome(profile);
 
-        // Check approval status.
+        // Check membership approval.
+        const isApproved = profile.status === "approved";
 
-        if (profile.status !== "approved") {
+        // Show or hide member features.
+        if (ideaForm) {
+            ideaForm.hidden = !isApproved;
+        }
+
+        if (notificationButton) {
+            notificationButton.disabled = !isApproved;
+        }
+
+        // Pending membership.
+        if (!isApproved) {
 
             showMessage(
+                ideaFormMessage,
                 "Your membership is waiting for approval.",
                 "error"
             );
 
-            if (ideaForm) {
-                ideaForm.hidden = true;
-            }
-
-            if (ideasList) {
-                ideasList.textContent =
-                    "Only approved members can access community ideas.";
-            }
-
-            if (notificationButton) {
-                notificationButton.disabled = true;
-            }
-
             return false;
 
-        }
-
-
-        // Approved member.
-
-        if (ideaForm) {
-            ideaForm.hidden = false;
-        }
-
-        if (notificationButton) {
-            notificationButton.disabled = false;
         }
 
         return true;
@@ -311,13 +590,19 @@ async function checkMemberAccess() {
 
         console.error("Member access error:", error);
 
-        showMessage(
-            "Something went wrong while checking your account.",
-            "error"
-        );
+        currentUser = null;
+        currentProfile = null;
 
         if (ideaForm) {
             ideaForm.hidden = true;
+        }
+
+        if (notificationButton) {
+            notificationButton.disabled = true;
+        }
+
+        if (personalGreeting) {
+            personalGreeting.textContent = "Welcome to coreI!";
         }
 
         return false;
@@ -327,9 +612,9 @@ async function checkMemberAccess() {
 }
 
 
-// =========================================
-// 7. CREATE IDEA CARD
-// =========================================
+// =============================================
+// 9. CREATE COMMUNITY IDEA CARD
+// =============================================
 
 function createIdeaCard(idea) {
 
@@ -337,26 +622,90 @@ function createIdeaCard(idea) {
 
     card.className = "idea-card";
 
+    // Get author profile.
+    const author = Array.isArray(idea.profiles)
+        ? idea.profiles[0]
+        : idea.profiles;
 
-    // Author information.
+    // Author area.
+    const authorContainer = document.createElement("div");
 
-    const author = idea.profiles || {};
+    authorContainer.className = "idea-author";
 
-    const authorName =
-        author.display_name || "coreI Member";
+    // Author photo.
+    const avatar = document.createElement("img");
 
-    const memberCode =
-        author.member_code || "Member ID unavailable";
+    avatar.className = "idea-author-photo";
 
-    const authorPhoto =
-        author.avatar_url || DEFAULT_AVATAR;
+    avatar.src = author?.avatar_url || DEFAULT_AVATAR;
 
+    avatar.alt = "Member profile photo";
+
+    avatar.onerror = () => {
+
+        avatar.onerror = null;
+
+        avatar.src = DEFAULT_AVATAR;
+
+    };
+
+    // Author details.
+    const authorDetails = document.createElement("div");
+
+    authorDetails.className = "idea-author-details";
+
+    const authorName = createTextElement(
+        "strong",
+        "",
+        author?.display_name || "coreI Member"
+    );
+
+    const memberCode = createTextElement(
+        "small",
+        "",
+        author?.member_code
+            ? `Member ${author.member_code}`
+            : "Community Member"
+    );
+
+    authorDetails.append(
+        authorName,
+        memberCode
+    );
+
+    authorContainer.append(
+        avatar,
+        authorDetails
+    );
+
+    // Date.
+    const date = createTextElement(
+        "small",
+        "idea-date",
+        formatDate(idea.created_at)
+    );
+
+    // Title.
+    const title = createTextElement(
+        "h3",
+        "",
+        idea.title
+    );
+
+    // Content.
+    const content = createTextElement(
+        "p",
+        "idea-content",
+        idea.content
+    );
+
+    // Actions.
+    const actions = document.createElement("div");
+
+    actions.className = "idea-actions";
 
     // Star information.
-
     const stars = idea.idea_stars || [];
-
-    const starCount = stars.length;
 
     const hasStarred = stars.some(star => {
 
@@ -364,127 +713,15 @@ function createIdeaCard(idea) {
 
     });
 
-
-    // =====================================
-    // AUTHOR PROFILE
-    // =====================================
-
-    const authorArea = document.createElement("div");
-
-    authorArea.className = "idea-author";
-
-
-    // Profile picture.
-
-    const authorImage = document.createElement("img");
-
-    authorImage.className = "idea-author-photo";
-
-    authorImage.src = authorPhoto;
-
-    authorImage.alt = `${authorName}'s profile picture`;
-
-    authorImage.onerror = () => {
-
-        authorImage.onerror = null;
-
-        authorImage.src = DEFAULT_AVATAR;
-
-    };
-
-
-    // Author details.
-
-    const authorDetails = document.createElement("div");
-
-    authorDetails.className = "idea-author-details";
-
-
-    const authorNameElement = document.createElement("strong");
-
-    authorNameElement.textContent = authorName;
-
-
-    const memberCodeElement = document.createElement("small");
-
-    memberCodeElement.textContent = memberCode;
-
-
-    authorDetails.append(
-        authorNameElement,
-        memberCodeElement
-    );
-
-
-    authorArea.append(
-        authorImage,
-        authorDetails
-    );
-
-
-    // =====================================
-    // IDEA DATE
-    // =====================================
-
-    const dateElement = document.createElement("small");
-
-    dateElement.className = "idea-date";
-
-    dateElement.textContent = idea.created_at
-        ? new Date(idea.created_at).toLocaleDateString()
-        : "";
-
-
-    // =====================================
-    // IDEA TITLE
-    // =====================================
-
-    const titleElement = document.createElement("h3");
-
-    titleElement.textContent =
-        idea.title || "Untitled idea";
-
-
-    // =====================================
-    // IDEA DESCRIPTION
-    // =====================================
-
-    const contentElement = document.createElement("p");
-
-    contentElement.className = "idea-content";
-
-    contentElement.textContent = idea.content || "";
-
-
-    // =====================================
-    // IDEA ACTIONS
-    // =====================================
-
-    const actions = document.createElement("div");
-
-    actions.className = "idea-actions";
-
-
-    // =====================================
-    // STAR BUTTON
-    // =====================================
-
+    // Star button.
     const starButton = document.createElement("button");
-
-    starButton.type = "button";
 
     starButton.className = "star-button";
 
+    starButton.type = "button";
+
     starButton.textContent =
-        `${hasStarred ? "★" : "☆"} ${starCount}`;
-
-    starButton.setAttribute(
-        "aria-label",
-        hasStarred
-            ? "Remove your star"
-            : "Give this idea a star"
-    );
-
+        `${hasStarred ? "★ Starred" : "☆ Star"} (${stars.length})`;
 
     starButton.addEventListener("click", async () => {
 
@@ -492,47 +729,30 @@ function createIdeaCard(idea) {
 
         try {
 
-            let result;
-
             if (hasStarred) {
 
-                // Remove existing star.
-
-                result = await supabase
+                // Remove star.
+                const { error } = await supabase
                     .from("idea_stars")
                     .delete()
                     .eq("idea_id", idea.id)
                     .eq("member_id", currentUser.id);
 
+                if (error) throw error;
+
             } else {
 
-                // Add a new star.
-
-                result = await supabase
+                // Add star.
+                const { error } = await supabase
                     .from("idea_stars")
                     .insert({
                         idea_id: idea.id,
                         member_id: currentUser.id
                     });
 
-            }
-
-
-            if (result.error) {
-
-                console.error(
-                    "Star update error:",
-                    result.error
-                );
-
-                alert(
-                    "Could not update your star. Please try again."
-                );
-
-                return;
+                if (error) throw error;
 
             }
-
 
             await loadIdeas();
 
@@ -540,11 +760,7 @@ function createIdeaCard(idea) {
 
             console.error("Star error:", error);
 
-            alert(
-                "Something went wrong while updating your star."
-            );
-
-        } finally {
+            alert("Unable to update your star. Please try again.");
 
             starButton.disabled = false;
 
@@ -552,40 +768,30 @@ function createIdeaCard(idea) {
 
     });
 
-
     actions.appendChild(starButton);
 
+    // Check whether the current member owns the idea or is an admin.
+    const isOwner = idea.member_id === currentUser.id;
 
-    // =====================================
-    // DELETE BUTTON
-    // =====================================
-
-    const isOwner =
-        idea.member_id === currentUser.id;
-
-    const isAdmin =
-        currentProfile?.role === "admin";
-
+    const isAdmin = currentProfile?.role === "admin";
 
     if (isOwner || isAdmin) {
 
         const deleteButton = document.createElement("button");
 
-        deleteButton.type = "button";
-
         deleteButton.className = "delete-idea-button";
+
+        deleteButton.type = "button";
 
         deleteButton.textContent = "Delete";
 
-
         deleteButton.addEventListener("click", async () => {
 
-            const confirmed = window.confirm(
+            const confirmed = confirm(
                 "Are you sure you want to delete this idea?"
             );
 
             if (!confirmed) return;
-
 
             deleteButton.disabled = true;
 
@@ -596,22 +802,7 @@ function createIdeaCard(idea) {
                     .delete()
                     .eq("id", idea.id);
 
-
-                if (error) {
-
-                    console.error(
-                        "Idea deletion error:",
-                        error
-                    );
-
-                    alert(
-                        "You do not have permission to delete this idea."
-                    );
-
-                    return;
-
-                }
-
+                if (error) throw error;
 
                 await loadIdeas();
 
@@ -619,11 +810,7 @@ function createIdeaCard(idea) {
 
                 console.error("Delete error:", error);
 
-                alert(
-                    "Something went wrong while deleting this idea."
-                );
-
-            } finally {
+                alert("Unable to delete this idea.");
 
                 deleteButton.disabled = false;
 
@@ -631,21 +818,16 @@ function createIdeaCard(idea) {
 
         });
 
-
         actions.appendChild(deleteButton);
 
     }
 
-
-    // =====================================
-    // COMPLETE IDEA CARD
-    // =====================================
-
+    // Assemble card.
     card.append(
-        authorArea,
-        dateElement,
-        titleElement,
-        contentElement,
+        authorContainer,
+        date,
+        title,
+        content,
         actions
     );
 
@@ -654,112 +836,90 @@ function createIdeaCard(idea) {
 }
 
 
-// =========================================
-// 8. LOAD COMMUNITY IDEAS
-// =========================================
+// =============================================
+// 10. LOAD COMMUNITY IDEAS
+// =============================================
 
 async function loadIdeas() {
 
-    if (!ideasList || !currentUser) return;
+    if (!currentUser || !currentProfile) return;
 
-    ideasList.textContent = "Loading ideas...";
+    try {
 
+        const { data: ideas, error } = await supabase
+            .from("ideas")
+            .select(`
+                id,
+                title,
+                content,
+                member_id,
+                created_at,
+                profiles!ideas_member_id_fkey (
+                    display_name,
+                    member_code,
+                    avatar_url
+                ),
+                idea_stars (
+                    member_id
+                )
+            `)
+            .order("created_at", {
+                ascending: false
+            });
 
-    // Get ideas, authors and stars.
+        if (error) throw error;
 
-    const { data: ideas, error } = await supabase
-        .from("ideas")
-        .select(`
-            id,
-            member_id,
-            title,
-            content,
-            created_at,
-
-            profiles!ideas_member_id_fkey (
-                display_name,
-                member_code,
-                avatar_url
-            ),
-
-            idea_stars (
-                member_id
-            )
-        `)
-        .order("created_at", { ascending: false });
-
-
-    if (error) {
-
-        console.error("Ideas loading error:", error);
-
-        ideasList.textContent =
-            "We could not load ideas. Please try again.";
-
-        if (featuredIdeasList) {
-            featuredIdeasList.textContent =
-                "Featured ideas could not be loaded.";
+        // Clear old content.
+        if (ideasList) {
+            ideasList.innerHTML = "";
         }
 
-        return;
+        if (featuredIdeasList) {
+            featuredIdeasList.innerHTML = "";
+        }
 
-    }
-
-
-    // =====================================
-    // COMMUNITY IDEAS
-    // =====================================
-
-    ideasList.replaceChildren();
-
-
-    if (!ideas || ideas.length === 0) {
-
-        const emptyMessage = document.createElement("div");
-
-        emptyMessage.className = "empty-card";
-
-        emptyMessage.textContent =
-            "No ideas have been shared yet. Be the first to share one!";
-
-        ideasList.appendChild(emptyMessage);
-
-    } else {
-
-        ideas.forEach(idea => {
-
-            ideasList.appendChild(
-                createIdeaCard(idea)
-            );
-
-        });
-
-    }
-
-
-    // =====================================
-    // FEATURED IDEAS
-    // =====================================
-
-    if (featuredIdeasList) {
-
-        featuredIdeasList.replaceChildren();
-
-
+        // No ideas available.
         if (!ideas || ideas.length === 0) {
 
-            const emptyMessage = document.createElement("div");
+            if (ideasList) {
 
-            emptyMessage.className = "empty-card";
+                ideasList.appendChild(
+                    createEmptyMessage(
+                        "No ideas have been shared yet. Be the first to share one!"
+                    )
+                );
 
-            emptyMessage.textContent =
-                "Ideas are waiting to be shared.";
+            }
 
-            featuredIdeasList.appendChild(emptyMessage);
+            if (featuredIdeasList) {
 
-        } else {
+                featuredIdeasList.appendChild(
+                    createEmptyMessage(
+                        "Your community's first ideas will appear here."
+                    )
+                );
 
-            // Display the latest three ideas.
+            }
+
+            return;
+
+        }
+
+        // Display all ideas in Express.
+        if (ideasList) {
+
+            ideas.forEach(idea => {
+
+                ideasList.appendChild(
+                    createIdeaCard(idea)
+                );
+
+            });
+
+        }
+
+        // Display the latest three on Home.
+        if (featuredIdeasList) {
 
             ideas.slice(0, 3).forEach(idea => {
 
@@ -771,14 +931,42 @@ async function loadIdeas() {
 
         }
 
+    } catch (error) {
+
+        console.error("Loading ideas error:", error);
+
+        if (ideasList) {
+
+            ideasList.innerHTML = "";
+
+            ideasList.appendChild(
+                createEmptyMessage(
+                    "Unable to load ideas. Please refresh the page."
+                )
+            );
+
+        }
+
+        if (featuredIdeasList) {
+
+            featuredIdeasList.innerHTML = "";
+
+            featuredIdeasList.appendChild(
+                createEmptyMessage(
+                    "Unable to load shared ideas right now."
+                )
+            );
+
+        }
+
     }
 
 }
 
 
-// =========================================
-// 9. PUBLISH A NEW IDEA
-// =========================================
+// =============================================
+// 11. PUBLISH NEW IDEA
+// =============================================
 
 if (ideaForm) {
 
@@ -786,11 +974,15 @@ if (ideaForm) {
 
         event.preventDefault();
 
-
-        if (!currentUser || !currentProfile) {
+        // Check membership.
+        if (
+            !currentUser ||
+            currentProfile?.status !== "approved"
+        ) {
 
             showMessage(
-                "Please sign in first.",
+                ideaFormMessage,
+                "You need an approved membership to share ideas.",
                 "error"
             );
 
@@ -798,30 +990,17 @@ if (ideaForm) {
 
         }
 
-
-        if (currentProfile.status !== "approved") {
-
-            showMessage(
-                "Your membership must be approved before publishing.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
+        // Get form values.
         const title = ideaTitle?.value.trim() || "";
 
         const content = ideaContent?.value.trim() || "";
 
-
         // Validate title.
-
         if (title.length < 3 || title.length > 120) {
 
             showMessage(
-                "Your title must contain 3 to 120 characters.",
+                ideaFormMessage,
+                "Your title must contain between 3 and 120 characters.",
                 "error"
             );
 
@@ -829,13 +1008,12 @@ if (ideaForm) {
 
         }
 
-
-        // Validate description.
-
+        // Validate content.
         if (content.length < 10 || content.length > 5000) {
 
             showMessage(
-                "Your idea must contain 10 to 5000 characters.",
+                ideaFormMessage,
+                "Your idea must contain between 10 and 5000 characters.",
                 "error"
             );
 
@@ -843,18 +1021,16 @@ if (ideaForm) {
 
         }
 
-
+        // Disable button while sharing.
         if (publishIdeaButton) {
 
             publishIdeaButton.disabled = true;
 
-            publishIdeaButton.textContent = "Publishing...";
+            publishIdeaButton.textContent = "Sharing...";
 
         }
 
-
-        showMessage("Publishing your idea...");
-
+        showMessage(ideaFormMessage, "");
 
         try {
 
@@ -866,37 +1042,19 @@ if (ideaForm) {
                     content: content
                 });
 
-
-            if (error) {
-
-                console.error(
-                    "Idea publishing error:",
-                    error
-                );
-
-                showMessage(
-                    "Your idea could not be published. Please try again.",
-                    "error"
-                );
-
-                return;
-
-            }
-
+            if (error) throw error;
 
             // Clear form.
-
             ideaForm.reset();
 
-
+            // Show success message.
             showMessage(
-                "Your idea has been published!",
+                ideaFormMessage,
+                "Your idea has been shared successfully!",
                 "success"
             );
 
-
             // Refresh ideas.
-
             await loadIdeas();
 
         } catch (error) {
@@ -904,7 +1062,8 @@ if (ideaForm) {
             console.error("Publishing error:", error);
 
             showMessage(
-                "Something went wrong while publishing.",
+                ideaFormMessage,
+                "Unable to share your idea. Please try again.",
                 "error"
             );
 
@@ -914,7 +1073,8 @@ if (ideaForm) {
 
                 publishIdeaButton.disabled = false;
 
-                publishIdeaButton.textContent = "✧ Publish idea";
+                publishIdeaButton.innerHTML =
+                    '<i class="fa-solid fa-paper-plane"></i> Share your idea';
 
             }
 
@@ -925,21 +1085,24 @@ if (ideaForm) {
 }
 
 
-// =========================================
-// 10. NOTIFICATION SYSTEM
-// =========================================
-
-// Load notifications for the logged-in member.
+// =============================================
+// 12. LOAD NOTIFICATIONS
+// =============================================
 
 async function loadNotifications() {
 
-    if (!currentUser || !notificationList) return;
+    if (
+        !currentUser ||
+        currentProfile?.status !== "approved"
+    ) {
+        return;
+    }
 
-    notificationList.textContent = "Loading notifications...";
+    if (!notificationList) return;
 
     try {
 
-        const { data, error } = await supabase
+        const { data: notifications, error } = await supabase
             .from("notifications")
             .select(`
                 id,
@@ -950,79 +1113,49 @@ async function loadNotifications() {
                 created_at
             `)
             .eq("user_id", currentUser.id)
-            .order("created_at", { ascending: false });
+            .order("created_at", {
+                ascending: false
+            });
 
+        if (error) throw error;
 
-        if (error) {
-            throw error;
-        }
+        const notificationItems = notifications || [];
 
+        notificationList.innerHTML = "";
 
         // Count unread notifications.
+        const unreadCount = notificationItems.filter(item => {
 
-        const unreadCount = (data || []).filter(
-            notification => !notification.is_read
-        ).length;
+            return !item.is_read;
 
+        }).length;
 
+        // Update notification badge.
         if (notificationCount) {
 
-            notificationCount.textContent =
-                unreadCount > 99 ? "99+" : unreadCount;
+            notificationCount.textContent = unreadCount;
 
             notificationCount.hidden = unreadCount === 0;
 
         }
 
+        // Empty state.
+        if (notificationItems.length === 0) {
 
-        notificationList.replaceChildren();
-
-
-        // Show empty message.
-
-        if (!data || data.length === 0) {
-
-            const emptyCard = document.createElement("div");
-
-            emptyCard.className = "empty-card";
-
-
-            const icon = document.createElement("div");
-
-            icon.className = "empty-icon";
-
-            icon.textContent = "🔔";
-
-
-            const heading = document.createElement("h3");
-
-            heading.textContent = "No notifications yet";
-
-
-            const description = document.createElement("p");
-
-            description.textContent =
-                "Your important community updates will appear here.";
-
-
-            emptyCard.append(
-                icon,
-                heading,
-                description
+            notificationList.appendChild(
+                createEmptyMessage(
+                    "You don't have any notifications yet."
+                )
             );
-
-            notificationList.appendChild(emptyCard);
 
             return;
 
         }
 
+        // Display notifications.
+        notificationItems.forEach(notification => {
 
-        // Create notification cards.
-
-        data.forEach(notification => {
-
-            const card = document.createElement("article");
+            const card = document.createElement("div");
 
             card.className = "notification-card";
 
@@ -1030,86 +1163,85 @@ async function loadNotifications() {
                 card.classList.add("unread");
             }
 
+            const title = createTextElement(
+                "h3",
+                "",
+                notification.title || "Notification"
+            );
 
-            const heading = document.createElement("h3");
+            const message = createTextElement(
+                "p",
+                "",
+                notification.message || ""
+            );
 
-            heading.textContent =
-                notification.title || "Community notification";
+            const date = createTextElement(
+                "small",
+                "",
+                formatDate(notification.created_at)
+            );
 
-
-            const message = document.createElement("p");
-
-            message.textContent =
-                notification.message || "";
-
-
-            const date = document.createElement("small");
-
-            date.textContent = notification.created_at
-                ? new Date(
-                    notification.created_at
-                ).toLocaleString()
-                : "";
-
-
-            const status = document.createElement("span");
-
-            status.className = "notification-status";
-
-            status.textContent = notification.is_read
-                ? "Read"
-                : "New";
-
+            const status = createTextElement(
+                "span",
+                "notification-status",
+                notification.is_read ? "Read" : "New"
+            );
 
             card.append(
-                heading,
+                title,
                 message,
                 date,
                 status
             );
 
+            // Mark as read when clicked.
+            card.addEventListener("click", async () => {
 
-            // Mark notification as read.
+                if (notification.is_read) return;
 
-            if (!notification.is_read) {
+                card.style.pointerEvents = "none";
 
-                card.addEventListener("click", async () => {
+                try {
 
-                    card.style.pointerEvents = "none";
+                    const { error: updateError } = await supabase
+                        .from("notifications")
+                        .update({
+                            is_read: true
+                        })
+                        .eq("id", notification.id)
+                        .eq("user_id", currentUser.id);
 
-                    try {
+                    if (updateError) throw updateError;
 
-                        const { error: updateError } = await supabase
-                            .from("notifications")
-                            .update({ is_read: true })
-                            .eq("id", notification.id)
-                            .eq("user_id", currentUser.id);
+                    notification.is_read = true;
 
+                    card.classList.remove("unread");
 
-                        if (updateError) {
-                            throw updateError;
-                        }
+                    status.textContent = "Read";
 
+                    // Update unread count.
+                    const remainingUnread =
+                        notificationItems.filter(item => !item.is_read).length;
 
-                        // Reload notifications to update the count.
+                    if (notificationCount) {
 
-                        await loadNotifications();
+                        notificationCount.textContent = remainingUnread;
 
-                    } catch (error) {
-
-                        console.error(
-                            "Mark notification as read error:",
-                            error
-                        );
-
-                        card.style.pointerEvents = "auto";
+                        notificationCount.hidden = remainingUnread === 0;
 
                     }
 
-                });
+                } catch (error) {
 
-            }
+                    console.error("Notification update error:", error);
 
+                } finally {
+
+                    card.style.pointerEvents = "";
+
+                }
+
+            });
 
             notificationList.appendChild(card);
 
@@ -1117,33 +1249,40 @@ async function loadNotifications() {
 
     } catch (error) {
 
-        console.error("Notification loading error:", error);
+        console.error("Notifications error:", error);
 
-        notificationList.textContent =
-            "Unable to load notifications. Please try again.";
+        notificationList.innerHTML = "";
+
+        notificationList.appendChild(
+            createEmptyMessage(
+                "Unable to load notifications. Please try again."
+            )
+        );
 
     }
 
 }
 
 
-// =========================================
-// 11. OPEN NOTIFICATION PANEL
-// =========================================
+// =============================================
+// 13. NOTIFICATION PANEL CONTROLS
+// =============================================
 
-if (notificationButton && notificationPanel) {
+// Open notification panel.
+if (notificationButton) {
 
     notificationButton.addEventListener("click", async () => {
 
+        if (notificationButton.disabled) return;
+
+        if (!notificationPanel) return;
+
         notificationPanel.hidden = !notificationPanel.hidden;
 
-        notificationButton.setAttribute(
-            "aria-expanded",
-            String(!notificationPanel.hidden)
-        );
-
         if (!notificationPanel.hidden) {
+
             await loadNotifications();
+
         }
 
     });
@@ -1151,200 +1290,166 @@ if (notificationButton && notificationPanel) {
 }
 
 
-// =========================================
-// 12. CLOSE NOTIFICATION PANEL
-// =========================================
-
-if (closeNotifications && notificationPanel) {
+// Close notification panel.
+if (closeNotifications) {
 
     closeNotifications.addEventListener("click", () => {
 
-        notificationPanel.hidden = true;
-
-        notificationButton?.setAttribute(
-            "aria-expanded",
-            "false"
-        );
+        if (notificationPanel) {
+            notificationPanel.hidden = true;
+        }
 
     });
 
 }
 
 
-// =========================================
-// 13. LOAD COMMUNITY ANNOUNCEMENTS
-// =========================================
+// Close panel when clicking outside.
+document.addEventListener("click", event => {
+
+    if (!notificationPanel || notificationPanel.hidden) return;
+
+    const clickedInside =
+        notificationPanel.contains(event.target) ||
+        notificationButton?.contains(event.target);
+
+    if (!clickedInside) {
+        notificationPanel.hidden = true;
+    }
+
+});
+
+
+// =============================================
+// 14. LOAD ANNOUNCEMENTS
+// =============================================
 
 async function loadAnnouncements() {
 
     if (!announcementsList) return;
 
-    announcementsList.replaceChildren();
+    // Show loading message.
+    announcementsList.innerHTML = "";
 
+    announcementsList.appendChild(
+        createEmptyMessage("Loading announcements...")
+    );
 
-    const loadingMessage = document.createElement("p");
+    try {
 
-    loadingMessage.textContent = "Loading community updates...";
+        // Fetch published announcements.
+        const { data: announcements, error } = await supabase
+            .from("announcements")
+            .select(`
+                id,
+                title,
+                description,
+                created_at,
+                is_published
+            `)
+            .eq("is_published", true)
+            .order("created_at", {
+                ascending: false
+            });
 
-    announcementsList.appendChild(loadingMessage);
+        if (error) throw error;
 
+        announcementsList.innerHTML = "";
 
-    const { data, error } = await supabase
-        .from("announcements")
-        .select(`
-            id,
-            title,
-            description,
-            created_at
-        `)
-        .eq("is_published", true)
-        .order("created_at", { ascending: false });
+        // No announcements.
+        if (!announcements || announcements.length === 0) {
 
+            announcementsList.appendChild(
+                createEmptyMessage(
+                    "No announcements have been published yet. Check back soon for updates!"
+                )
+            );
 
-    if (error) {
+            return;
 
-        console.error(
-            "Announcement loading error:",
-            error
+        }
+
+        // Display announcements.
+        announcements.forEach(announcement => {
+
+            const card = document.createElement("article");
+
+            card.className = "announcement-card";
+
+            const title = createTextElement(
+                "h3",
+                "",
+                announcement.title || "Untitled announcement"
+            );
+
+            const description = createTextElement(
+                "p",
+                "",
+                announcement.description || "No additional details provided."
+            );
+
+            const date = createTextElement(
+                "small",
+                "announcement-date",
+                formatDate(announcement.created_at)
+            );
+
+            card.append(
+                title,
+                description,
+                date
+            );
+
+            announcementsList.appendChild(card);
+
+        });
+
+    } catch (error) {
+
+        console.error("Announcements loading error:", error);
+
+        announcementsList.innerHTML = "";
+
+        announcementsList.appendChild(
+            createEmptyMessage(
+                "We couldn't load announcements. Please refresh and try again."
+            )
         );
-
-        announcementsList.replaceChildren();
-
-        const message = document.createElement("p");
-
-        message.textContent =
-            "Unable to load community updates.";
-
-        announcementsList.appendChild(message);
-
-        return;
 
     }
-
-
-    announcementsList.replaceChildren();
-
-
-    // =====================================
-    // NO ANNOUNCEMENTS
-    // =====================================
-
-    if (!data || data.length === 0) {
-
-        const emptyCard = document.createElement("div");
-
-        emptyCard.className = "empty-card";
-
-
-        const icon = document.createElement("div");
-
-        icon.className = "empty-icon";
-
-        icon.textContent = "✦";
-
-
-        const heading = document.createElement("h3");
-
-        heading.textContent = "Nothing new yet";
-
-
-        const description = document.createElement("p");
-
-        description.textContent =
-            "Important community announcements will appear here.";
-
-
-        emptyCard.append(
-            icon,
-            heading,
-            description
-        );
-
-        announcementsList.appendChild(emptyCard);
-
-        return;
-
-    }
-
-
-    // =====================================
-    // CREATE ANNOUNCEMENT CARDS
-    // =====================================
-
-    data.forEach(announcement => {
-
-        const card = document.createElement("article");
-
-        card.className = "announcement-card";
-
-
-        const heading = document.createElement("h3");
-
-        heading.textContent =
-            announcement.title || "Community update";
-
-
-        const description = document.createElement("p");
-
-        description.textContent =
-            announcement.description || "";
-
-
-        const date = document.createElement("small");
-
-        date.className = "announcement-date";
-
-        date.textContent = announcement.created_at
-            ? new Date(
-                announcement.created_at
-            ).toLocaleDateString()
-            : "";
-
-
-        card.append(
-            heading,
-            description,
-            date
-        );
-
-
-        announcementsList.appendChild(card);
-
-    });
 
 }
 
 
-// =========================================
-// 14. START APPLICATION
-// =========================================
+// =============================================
+// 15. START APPLICATION
+// =============================================
 
 async function startApplication() {
 
-    // First check member access.
-
-    const hasAccess = await checkMemberAccess();
-
-    if (!hasAccess) return;
-
+    // Display the daily idea.
+    updateIdeaOfTheDay();
 
     // Load announcements.
-
     await loadAnnouncements();
 
+    // Check member access.
+    const hasAccess = await checkMemberAccess();
 
-    // Load community and featured ideas.
+    // Stop if membership is not approved.
+    if (!hasAccess) return;
 
-    await loadIdeas();
-
-
-    // Load member notifications.
-
-    await loadNotifications();
+    // Load member features.
+    await Promise.all([
+        loadIdeas(),
+        loadNotifications()
+    ]);
 
 }
 
 
-// Start coreI.
+// =============================================
+// 16. START COREI
+// =============================================
 
 startApplication();

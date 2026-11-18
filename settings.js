@@ -2,6 +2,12 @@
 import { supabase } from "./supabase.js";
 
 // =============================================
+// coreI — COMPLETE SETTINGS SYSTEM
+// Connected to Supabase
+// =============================================
+
+
+// =============================================
 // 1. PAGE ELEMENTS
 // =============================================
 
@@ -31,7 +37,7 @@ const updatePasswordButton = document.getElementById("updatePasswordButton");
 const memberCodeElement = document.getElementById("settingsMemberCode");
 const memberStatusElement = document.getElementById("settingsMemberStatus");
 
-// Logout
+// Sign out
 const logoutButton = document.getElementById("logoutButton");
 const logoutMessage = document.getElementById("logoutMessage");
 
@@ -39,7 +45,11 @@ const logoutMessage = document.getElementById("logoutMessage");
 const settingsSearch = document.getElementById("settingsSearch");
 const clearSettingsSearch = document.getElementById("clearSettingsSearch");
 const navigation = document.getElementById("settingsNavigation");
-const navigationLinks = document.querySelectorAll(".settings-menu-link");
+
+const navigationLinks = document.querySelectorAll(
+    ".settings-menu-link"
+);
+
 const settingsSections = document.querySelectorAll(
     ".settings-content .settings-section"
 );
@@ -48,18 +58,31 @@ const settingsSections = document.querySelectorAll(
 const ideaNotifications = document.getElementById("ideaNotifications");
 const announcementNotifications = document.getElementById("announcementNotifications");
 const accountNotifications = document.getElementById("accountNotifications");
-const saveNotificationSettings = document.getElementById("saveNotificationSettings");
-const notificationMessage = document.getElementById("notificationMessage");
 
-// Appearance
-const themeInputs = document.querySelectorAll('input[name="theme"]');
-const themeMessage = document.getElementById("themeMessage");
+const saveNotificationSettings = document.getElementById(
+    "saveNotificationSettings"
+);
+
+const notificationMessage = document.getElementById(
+    "notificationMessage"
+);
 
 // Privacy
 const profileVisibility = document.getElementById("profileVisibility");
 const showBio = document.getElementById("showBio");
-const savePrivacySettings = document.getElementById("savePrivacySettings");
+
+const savePrivacySettings = document.getElementById(
+    "savePrivacySettings"
+);
+
 const privacyMessage = document.getElementById("privacyMessage");
+
+// Appearance
+const themeOptions = document.querySelectorAll(
+    'input[name="themePreference"]'
+);
+
+const themeMessage = document.getElementById("themeMessage");
 
 // Activity
 const myIdeasCount = document.getElementById("myIdeasCount");
@@ -70,28 +93,49 @@ const activityMessage = document.getElementById("activityMessage");
 // Data management
 const exportDataButton = document.getElementById("exportDataButton");
 const exportMessage = document.getElementById("exportMessage");
-const accountDeletionInfoButton = document.getElementById("accountDeletionInfoButton");
-const accountDeletionInfo = document.getElementById("accountDeletionInfo");
+
+const accountDeletionInfoButton = document.getElementById(
+    "accountDeletionInfoButton"
+);
+
+const accountDeletionInfo = document.getElementById(
+    "accountDeletionInfo"
+);
 
 // Support
 const supportForm = document.getElementById("supportForm");
+const supportSubject = document.getElementById("supportSubject");
+const supportCategory = document.getElementById("supportCategory");
+const supportMessageInput = document.getElementById("supportMessage");
 const supportFormMessage = document.getElementById("supportFormMessage");
+const submitSupportButton = document.getElementById("submitSupportButton");
+
 
 // =============================================
 // 2. SETTINGS
 // =============================================
 
 const DEFAULT_AVATAR = "./images/default-profile.png";
+
 const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
 
 const STORAGE_KEYS = {
-    theme: "coreI_theme",
     notifications: "coreI_notification_preferences",
-    privacy: "coreI_privacy_preferences"
+    privacy: "coreI_privacy_preferences",
+    theme: "coreI-theme"
 };
+
+const ALLOWED_SUPPORT_CATEGORIES = [
+    "technical",
+    "account",
+    "bug",
+    "suggestion",
+    "other"
+];
 
 let currentUser = null;
 let currentProfile = null;
+
 let currentAvatarUrl = "";
 let selectedPhoto = null;
 let previewObjectUrl = null;
@@ -101,40 +145,71 @@ let previewObjectUrl = null;
 // 3. HELPER FUNCTIONS
 // =============================================
 
+// Display messages
 function showMessage(element, message, success = false) {
     if (!element) return;
 
     element.textContent = message;
-    element.style.color = success ? "#86EFAC" : "#FCA5A5";
+
+    element.style.color = success
+        ? "#16866F"
+        : "#B42318";
 }
 
-function setButtonLoading(button, loading, normalText, loadingText) {
+
+// Button loading state
+function setButtonLoading(button, loading, loadingText) {
     if (!button) return;
 
-    button.disabled = loading;
-    button.textContent = loading ? loadingText : normalText;
+    if (loading) {
+        if (!button.dataset.originalText) {
+            button.dataset.originalText = button.textContent.trim();
+        }
+
+        button.disabled = true;
+        button.textContent = loadingText;
+
+    } else {
+        button.disabled = false;
+
+        if (button.dataset.originalText) {
+            button.textContent = button.dataset.originalText;
+        }
+    }
 }
 
+
+// Read saved browser settings
 function readLocalSettings(key, fallback) {
     try {
         const saved = localStorage.getItem(key);
+
         return saved ? JSON.parse(saved) : fallback;
+
     } catch (error) {
-        console.error("Could not read local settings:", error);
+        console.error("Settings reading error:", error);
+
         return fallback;
     }
 }
 
+
+// Save browser settings
 function saveLocalSettings(key, value) {
     try {
         localStorage.setItem(key, JSON.stringify(value));
+
         return true;
+
     } catch (error) {
-        console.error("Could not save local settings:", error);
+        console.error("Settings saving error:", error);
+
         return false;
     }
 }
 
+
+// Format dates
 function formatDate(dateValue) {
     if (!dateValue) return "Date unavailable";
 
@@ -152,8 +227,149 @@ function formatDate(dateValue) {
 }
 
 
+// Create safe HTML text elements
+function createTextElement(tag, className, text) {
+    const element = document.createElement(tag);
+
+    if (className) {
+        element.className = className;
+    }
+
+    element.textContent = text || "";
+
+    return element;
+}
+
+
 // =============================================
-// 4. LOAD LOGGED-IN USER
+// 4. THEME SYSTEM
+// Light | Dark | System
+// =============================================
+
+const systemThemeQuery = window.matchMedia(
+    "(prefers-color-scheme: dark)"
+);
+
+
+// Read the saved theme
+function getSavedTheme() {
+    try {
+        const savedTheme = localStorage.getItem(
+            STORAGE_KEYS.theme
+        );
+
+        if (["light", "dark", "system"].includes(savedTheme)) {
+            return savedTheme;
+        }
+
+    } catch (error) {
+        console.error("Theme reading error:", error);
+    }
+
+    return "system";
+}
+
+
+// Apply theme to the page
+function applyTheme(preference) {
+    if (!["light", "dark", "system"].includes(preference)) {
+        preference = "system";
+    }
+
+    const darkMode =
+        preference === "dark" ||
+        (
+            preference === "system" &&
+            systemThemeQuery.matches
+        );
+
+    document.body.classList.toggle(
+        "dark-theme",
+        darkMode
+    );
+
+    // Update theme selection
+    themeOptions.forEach(option => {
+        option.checked = option.value === preference;
+    });
+
+    // Update browser theme colour
+    const themeColor = document.querySelector(
+        'meta[name="theme-color"]'
+    );
+
+    if (themeColor) {
+        themeColor.setAttribute(
+            "content",
+            darkMode ? "#101A1A" : "#F3F6F4"
+        );
+    }
+}
+
+
+// Load saved theme
+function loadThemePreference() {
+    applyTheme(getSavedTheme());
+}
+
+
+// Save selected theme
+themeOptions.forEach(option => {
+    option.addEventListener("change", () => {
+        if (!option.checked) return;
+
+        const preference = option.value;
+
+        try {
+            localStorage.setItem(
+                STORAGE_KEYS.theme,
+                preference
+            );
+
+            applyTheme(preference);
+
+            showMessage(
+                themeMessage,
+                `Your ${preference} theme has been selected.`,
+                true
+            );
+
+        } catch (error) {
+            console.error("Theme saving error:", error);
+
+            showMessage(
+                themeMessage,
+                "Could not save your theme preference."
+            );
+        }
+    });
+});
+
+
+// Follow device theme when System is selected
+function handleSystemThemeChange() {
+    if (getSavedTheme() === "system") {
+        applyTheme("system");
+    }
+}
+
+if (systemThemeQuery.addEventListener) {
+    systemThemeQuery.addEventListener(
+        "change",
+        handleSystemThemeChange
+    );
+} else {
+    // Compatibility with older browsers
+    systemThemeQuery.addListener(handleSystemThemeChange);
+}
+
+
+// Apply theme immediately
+loadThemePreference();
+
+
+// =============================================
+// 5. LOAD LOGGED-IN USER
 // =============================================
 
 async function loadSettings() {
@@ -161,7 +377,7 @@ async function loadSettings() {
         const { data, error } = await supabase.auth.getUser();
 
         if (error || !data.user) {
-            window.location.href = "./login.html";
+            window.location.replace("./login.html");
             return;
         }
 
@@ -171,9 +387,11 @@ async function loadSettings() {
 
         loadNotificationSettings();
         loadPrivacySettings();
-        loadThemeSettings();
 
-        await loadActivity();
+        await Promise.all([
+            loadActivity(),
+            loadMySupportIssues()
+        ]);
 
     } catch (error) {
         console.error("Settings loading error:", error);
@@ -187,7 +405,7 @@ async function loadSettings() {
 
 
 // =============================================
-// 5. LOAD PROFILE
+// 6. LOAD USER PROFILE
 // =============================================
 
 async function loadUserProfile() {
@@ -216,6 +434,7 @@ async function loadUserProfile() {
     }
 
     currentProfile = profile;
+
     currentAvatarUrl = profile.avatar_url || "";
 
     if (displayNameInput) {
@@ -248,7 +467,7 @@ async function loadUserProfile() {
 
 
 // =============================================
-// 6. PROFILE PHOTO PREVIEW
+// 7. PROFILE PHOTO PREVIEW
 // =============================================
 
 if (avatarInput) {
@@ -266,11 +485,12 @@ if (avatarInput) {
         if (!allowedTypes.includes(file.type)) {
             showMessage(
                 profileMessage,
-                "Choose a JPG, PNG or WEBP image."
+                "Please choose a JPG, PNG or WEBP image."
             );
 
             avatarInput.value = "";
             selectedPhoto = null;
+
             return;
         }
 
@@ -282,6 +502,7 @@ if (avatarInput) {
 
             avatarInput.value = "";
             selectedPhoto = null;
+
             return;
         }
 
@@ -307,7 +528,7 @@ if (avatarInput) {
 
 
 // =============================================
-// 7. UPLOAD PROFILE PHOTO
+// 8. UPLOAD PROFILE PHOTO
 // =============================================
 
 async function uploadProfilePhoto() {
@@ -344,23 +565,34 @@ async function uploadProfilePhoto() {
 
 
 // =============================================
-// 8. SAVE PROFILE
+// 9. SAVE PROFILE INFORMATION
 // =============================================
 
 if (profileForm) {
-    profileForm.addEventListener("submit", async (event) => {
+    profileForm.addEventListener("submit", async event => {
         event.preventDefault();
 
         if (!currentUser || !currentProfile) {
-            showMessage(profileMessage, "Your profile is not ready yet.");
+            showMessage(
+                profileMessage,
+                "Your profile is not ready yet. Refresh the page."
+            );
+
             return;
         }
 
-        const displayName = displayNameInput?.value.trim() || "";
-        const bio = bioInput?.value.trim() || "";
+        const displayName =
+            displayNameInput?.value.trim() || "";
+
+        const bio =
+            bioInput?.value.trim() || "";
 
         if (!displayName) {
-            showMessage(profileMessage, "Please enter your display name.");
+            showMessage(
+                profileMessage,
+                "Please enter your display name."
+            );
+
             return;
         }
 
@@ -369,13 +601,13 @@ if (profileForm) {
                 profileMessage,
                 "Your display name must be 40 characters or fewer."
             );
+
             return;
         }
 
         setButtonLoading(
             saveProfileButton,
             true,
-            "Save changes",
             "Saving..."
         );
 
@@ -411,7 +643,8 @@ if (profileForm) {
             }
 
             if (avatarPreview) {
-                avatarPreview.src = avatarUrl || DEFAULT_AVATAR;
+                avatarPreview.src =
+                    avatarUrl || DEFAULT_AVATAR;
             }
 
             showMessage(
@@ -432,7 +665,6 @@ if (profileForm) {
             setButtonLoading(
                 saveProfileButton,
                 false,
-                "Save changes",
                 "Saving..."
             );
         }
@@ -441,11 +673,11 @@ if (profileForm) {
 
 
 // =============================================
-// 9. UPDATE EMAIL
+// 10. UPDATE EMAIL
 // =============================================
 
 if (emailForm) {
-    emailForm.addEventListener("submit", async (event) => {
+    emailForm.addEventListener("submit", async event => {
         event.preventDefault();
 
         if (!currentUser || !newEmailInput) return;
@@ -453,19 +685,29 @@ if (emailForm) {
         const newEmail = newEmailInput.value.trim();
 
         if (!newEmail) {
-            showMessage(emailMessage, "Enter your new email address.");
+            showMessage(
+                emailMessage,
+                "Please enter your new email address."
+            );
+
             return;
         }
 
-        if (newEmail.toLowerCase() === currentUser.email?.toLowerCase()) {
-            showMessage(emailMessage, "This is already your email address.");
+        if (
+            newEmail.toLowerCase() ===
+            currentUser.email?.toLowerCase()
+        ) {
+            showMessage(
+                emailMessage,
+                "This is already your email address."
+            );
+
             return;
         }
 
         setButtonLoading(
             updateEmailButton,
             true,
-            "Update email",
             "Updating..."
         );
 
@@ -486,13 +728,16 @@ if (emailForm) {
 
         } catch (error) {
             console.error("Email update error:", error);
-            showMessage(emailMessage, error.message || "Could not update email.");
+
+            showMessage(
+                emailMessage,
+                error.message || "Could not update your email."
+            );
 
         } finally {
             setButtonLoading(
                 updateEmailButton,
                 false,
-                "Update email",
                 "Updating..."
             );
         }
@@ -501,43 +746,47 @@ if (emailForm) {
 
 
 // =============================================
-// 10. CHANGE PASSWORD
+// 11. CHANGE PASSWORD
 // =============================================
 
 if (passwordForm) {
-    passwordForm.addEventListener("submit", async (event) => {
+    passwordForm.addEventListener("submit", async event => {
         event.preventDefault();
 
-        if (!currentUser || !newPasswordInput || !confirmPasswordInput) {
-            return;
-        }
+        if (!currentUser) return;
 
-        const password = newPasswordInput.value;
-        const confirmPassword = confirmPasswordInput.value;
+        const password = newPasswordInput?.value || "";
+
+        const confirmPassword =
+            confirmPasswordInput?.value || "";
 
         if (password.length < 8) {
             showMessage(
                 passwordMessage,
                 "Your password must contain at least 8 characters."
             );
+
             return;
         }
 
         if (password !== confirmPassword) {
-            showMessage(passwordMessage, "Your passwords do not match.");
+            showMessage(
+                passwordMessage,
+                "Your passwords do not match."
+            );
+
             return;
         }
 
         setButtonLoading(
             updatePasswordButton,
             true,
-            "Change password",
             "Updating..."
         );
 
         try {
             const { error } = await supabase.auth.updateUser({
-                password
+                password: password
             });
 
             if (error) throw error;
@@ -552,13 +801,16 @@ if (passwordForm) {
 
         } catch (error) {
             console.error("Password update error:", error);
-            showMessage(passwordMessage, error.message || "Could not change password.");
+
+            showMessage(
+                passwordMessage,
+                error.message || "Could not change your password."
+            );
 
         } finally {
             setButtonLoading(
                 updatePasswordButton,
                 false,
-                "Change password",
                 "Updating..."
             );
         }
@@ -567,7 +819,7 @@ if (passwordForm) {
 
 
 // =============================================
-// 11. SETTINGS SEARCH
+// 12. SETTINGS SEARCH
 // =============================================
 
 function filterSettings() {
@@ -582,13 +834,16 @@ function filterSettings() {
         ).toLowerCase();
 
         section.hidden =
-            searchText.length > 0 &&
+            searchText !== "" &&
             !searchableText.includes(searchText);
     });
 
     navigationLinks.forEach(link => {
-        const targetId = link.getAttribute("href")?.slice(1);
-        const targetSection = document.getElementById(targetId);
+        const targetId =
+            link.getAttribute("href")?.slice(1);
+
+        const targetSection =
+            document.getElementById(targetId);
 
         if (targetSection) {
             link.hidden = targetSection.hidden;
@@ -603,28 +858,25 @@ function filterSettings() {
 
     if (sidebar) {
         sidebar.hidden =
-            searchText.length > 0 &&
+            searchText !== "" &&
             visibleSections.length === 0;
     }
 
     if (clearSettingsSearch) {
-        clearSettingsSearch.hidden = searchText.length === 0;
+        clearSettingsSearch.hidden = searchText === "";
     }
 
-    if (visibleSections.length > 0) {
-        const activeLink = [...navigationLinks].find(link => {
-            const id = link.getAttribute("href")?.slice(1);
-            return id === visibleSections[0].id;
-        });
+    if (searchText && visibleSections.length > 0) {
+        const firstSection = visibleSections[0];
 
-        if (
-            searchText &&
-            activeLink &&
-            !activeLink.classList.contains("active")
-        ) {
-            navigationLinks.forEach(link => link.classList.remove("active"));
-            activeLink.classList.add("active");
-        }
+        navigationLinks.forEach(link => {
+            const id = link.getAttribute("href")?.slice(1);
+
+            link.classList.toggle(
+                "active",
+                id === firstSection.id
+            );
+        });
     }
 }
 
@@ -634,21 +886,28 @@ if (settingsSearch) {
 
 if (clearSettingsSearch) {
     clearSettingsSearch.addEventListener("click", () => {
+        if (!settingsSearch) return;
+
         settingsSearch.value = "";
+
         filterSettings();
+
         settingsSearch.focus();
     });
 }
 
 
 // =============================================
-// 12. SIDEBAR NAVIGATION
+// 13. SETTINGS NAVIGATION
 // =============================================
 
 navigationLinks.forEach(link => {
     link.addEventListener("click", event => {
-        const targetId = link.getAttribute("href")?.slice(1);
-        const targetSection = document.getElementById(targetId);
+        const targetId =
+            link.getAttribute("href")?.slice(1);
+
+        const targetSection =
+            document.getElementById(targetId);
 
         if (!targetSection || targetSection.hidden) {
             event.preventDefault();
@@ -670,40 +929,46 @@ navigationLinks.forEach(link => {
 
 
 // =============================================
-// 13. HIGHLIGHT CURRENT SECTION
+// 14. HIGHLIGHT CURRENT SECTION
 // =============================================
 
 if ("IntersectionObserver" in window) {
-    const sectionObserver = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-            if (!entry.isIntersecting) return;
-            if (entry.target.hidden) return;
+    const sectionObserver = new IntersectionObserver(
+        entries => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                if (entry.target.hidden) return;
 
-            const sectionId = entry.target.id;
+                const sectionId = entry.target.id;
 
-            navigationLinks.forEach(link => {
-                const linkId = link.getAttribute("href")?.slice(1);
+                navigationLinks.forEach(link => {
+                    const linkId =
+                        link.getAttribute("href")?.slice(1);
 
-                if (!link.hidden) {
-                    link.classList.toggle(
-                        "active",
-                        linkId === sectionId
-                    );
-                }
+                    if (!link.hidden) {
+                        link.classList.toggle(
+                            "active",
+                            linkId === sectionId
+                        );
+                    }
+                });
             });
-        });
-    }, {
-        rootMargin: "-15% 0px -70% 0px"
-    });
+        },
+        {
+            rootMargin: "-15% 0px -70% 0px"
+        }
+    );
 
     settingsSections.forEach(section => {
-        if (section.id) sectionObserver.observe(section);
+        if (section.id) {
+            sectionObserver.observe(section);
+        }
     });
 }
 
 
 // =============================================
-// 14. NOTIFICATION PREFERENCES
+// 15. NOTIFICATION PREFERENCES
 // =============================================
 
 function loadNotificationSettings() {
@@ -719,15 +984,18 @@ function loadNotificationSettings() {
     );
 
     if (ideaNotifications) {
-        ideaNotifications.checked = preferences.ideas ?? true;
+        ideaNotifications.checked =
+            preferences.ideas ?? defaults.ideas;
     }
 
     if (announcementNotifications) {
-        announcementNotifications.checked = preferences.announcements ?? true;
+        announcementNotifications.checked =
+            preferences.announcements ?? defaults.announcements;
     }
 
     if (accountNotifications) {
-        accountNotifications.checked = preferences.account ?? true;
+        accountNotifications.checked =
+            preferences.account ?? defaults.account;
     }
 }
 
@@ -735,8 +1003,12 @@ if (saveNotificationSettings) {
     saveNotificationSettings.addEventListener("click", () => {
         const preferences = {
             ideas: ideaNotifications?.checked ?? true,
-            announcements: announcementNotifications?.checked ?? true,
-            account: accountNotifications?.checked ?? true
+
+            announcements:
+                announcementNotifications?.checked ?? true,
+
+            account:
+                accountNotifications?.checked ?? true
         };
 
         const saved = saveLocalSettings(
@@ -746,86 +1018,15 @@ if (saveNotificationSettings) {
 
         showMessage(
             notificationMessage,
+
             saved
-                ? "Notification preferences saved on this device."
-                : "Could not save your preferences.",
-            saved
-        );
-    });
-}
+                ? "Your notification preferences have been saved on this device."
+                : "Could not save your notification preferences.",
 
-
-// =============================================
-// 15. APPEARANCE AND THEME
-// =============================================
-
-function applyTheme(theme) {
-    let selectedTheme = theme;
-
-    if (theme === "system") {
-        selectedTheme = window.matchMedia(
-            "(prefers-color-scheme: dark)"
-        ).matches ? "dark" : "light";
-    }
-
-    document.documentElement.dataset.theme = selectedTheme;
-    document.body.dataset.theme = selectedTheme;
-}
-
-function loadThemeSettings() {
-    const savedTheme = readLocalSettings(
-        STORAGE_KEYS.theme,
-        "system"
-    );
-
-    const validThemes = ["dark", "light", "system"];
-
-    const theme = validThemes.includes(savedTheme)
-        ? savedTheme
-        : "system";
-
-    applyTheme(theme);
-
-    themeInputs.forEach(input => {
-        input.checked = input.value === theme;
-    });
-}
-
-themeInputs.forEach(input => {
-    input.addEventListener("change", () => {
-        if (!input.checked) return;
-
-        const theme = input.value;
-
-        if (!["dark", "light", "system"].includes(theme)) {
-            return;
-        }
-
-        const saved = saveLocalSettings(STORAGE_KEYS.theme, theme);
-
-        applyTheme(theme);
-
-        showMessage(
-            themeMessage,
-            saved
-                ? `${theme.charAt(0).toUpperCase() + theme.slice(1)} theme selected.`
-                : "Theme selected, but could not save the preference.",
             saved
         );
     });
-});
-
-const systemThemeQuery = window.matchMedia(
-    "(prefers-color-scheme: dark)"
-);
-
-systemThemeQuery.addEventListener?.("change", () => {
-    const savedTheme = readLocalSettings(STORAGE_KEYS.theme, "system");
-
-    if (savedTheme === "system") {
-        applyTheme("system");
-    }
-});
+}
 
 
 // =============================================
@@ -843,19 +1044,47 @@ function loadPrivacySettings() {
         defaults
     );
 
+    const allowedVisibility = [
+        "public",
+        "members",
+        "private"
+    ];
+
     if (profileVisibility) {
-        profileVisibility.value = preferences.visibility || "members";
+        profileVisibility.value =
+            allowedVisibility.includes(preferences.visibility)
+                ? preferences.visibility
+                : defaults.visibility;
     }
 
     if (showBio) {
-        showBio.checked = preferences.showBio ?? true;
+        showBio.checked =
+            preferences.showBio ?? defaults.showBio;
     }
 }
 
 if (savePrivacySettings) {
     savePrivacySettings.addEventListener("click", () => {
+        const visibility =
+            profileVisibility?.value || "members";
+
+        const allowedVisibility = [
+            "public",
+            "members",
+            "private"
+        ];
+
+        if (!allowedVisibility.includes(visibility)) {
+            showMessage(
+                privacyMessage,
+                "Please select a valid visibility option."
+            );
+
+            return;
+        }
+
         const preferences = {
-            visibility: profileVisibility?.value || "members",
+            visibility: visibility,
             showBio: showBio?.checked ?? true
         };
 
@@ -866,9 +1095,11 @@ if (savePrivacySettings) {
 
         showMessage(
             privacyMessage,
+
             saved
-                ? "Privacy preferences saved on this device. These settings do not yet control who can view your profile."
+                ? "Your preferences are saved on this device. They do not yet change actual profile visibility."
                 : "Could not save your privacy preferences.",
+
             saved
         );
     });
@@ -887,22 +1118,30 @@ async function loadActivity() {
     }
 
     try {
-        const [ideasResult, notificationsResult] = await Promise.all([
-            supabase
-                .from("ideas")
-                .select("id, title, created_at")
-                .eq("member_id", currentUser.id)
-                .order("created_at", { ascending: false }),
+        const [ideasResult, notificationsResult] =
+            await Promise.all([
 
-            supabase
-                .from("notifications")
-                .select("id, title, message, type, created_at")
-                .eq("user_id", currentUser.id)
-                .order("created_at", { ascending: false })
-        ]);
+                supabase
+                    .from("ideas")
+                    .select("id, title, created_at")
+                    .eq("member_id", currentUser.id)
+                    .order("created_at", { ascending: false }),
 
-        if (ideasResult.error) throw ideasResult.error;
-        if (notificationsResult.error) throw notificationsResult.error;
+                supabase
+                    .from("notifications")
+                    .select("id, title, message, type, created_at")
+                    .eq("user_id", currentUser.id)
+                    .order("created_at", { ascending: false })
+
+            ]);
+
+        if (ideasResult.error) {
+            throw ideasResult.error;
+        }
+
+        if (notificationsResult.error) {
+            throw notificationsResult.error;
+        }
 
         const ideas = ideasResult.data || [];
         const notifications = notificationsResult.data || [];
@@ -933,46 +1172,71 @@ async function loadActivity() {
                 date: item.created_at,
                 kind: "Notification"
             }))
-        ].sort((a, b) => {
-            return new Date(b.date || 0) - new Date(a.date || 0);
-        }).slice(0, 15);
+        ];
 
-        if (activities.length === 0) {
-            activityList.textContent = "You don't have any activity yet.";
+        activities.sort((a, b) => {
+            return new Date(b.date || 0) -
+                new Date(a.date || 0);
+        });
+
+        const recentActivities = activities.slice(0, 15);
+
+        if (recentActivities.length === 0) {
+            activityList.textContent =
+                "You don't have any activity yet.";
+
             return;
         }
 
-        activities.forEach(activity => {
+        recentActivities.forEach(activity => {
             const item = document.createElement("div");
+
             item.className = "activity-item";
 
-            const heading = document.createElement("strong");
-            heading.textContent = activity.title;
+            const heading = createTextElement(
+                "strong",
+                "",
+                activity.title
+            );
 
-            const description = document.createElement("p");
-            description.textContent = activity.description;
+            const description = createTextElement(
+                "p",
+                "",
+                activity.description
+            );
 
-            const metadata = document.createElement("small");
-            metadata.textContent =
-                `${activity.kind} · ${formatDate(activity.date)}`;
+            const metadata = createTextElement(
+                "small",
+                "",
+                `${activity.kind} · ${formatDate(activity.date)}`
+            );
 
-            item.append(heading, description, metadata);
+            item.append(
+                heading,
+                description,
+                metadata
+            );
+
             activityList.appendChild(item);
         });
 
-        showMessage(activityMessage, "Your activity is up to date.", true);
+        showMessage(
+            activityMessage,
+            "Your activity is up to date.",
+            true
+        );
 
     } catch (error) {
         console.error("Activity loading error:", error);
 
         if (activityList) {
             activityList.textContent =
-                "Activity could not be loaded. Please check your database permissions and table columns.";
+                "Your activity could not be loaded. Please try again later.";
         }
 
         showMessage(
             activityMessage,
-            "Could not load activity."
+            "Could not load your activity."
         );
     }
 }
@@ -989,29 +1253,42 @@ if (exportDataButton) {
         setButtonLoading(
             exportDataButton,
             true,
-            "Export my data",
             "Preparing..."
         );
 
+        let downloadUrl = null;
+
         try {
-            const [profileResult, ideasResult, notificationsResult] =
-                await Promise.all([
-                    supabase
-                        .from("profiles")
-                        .select("display_name, member_code, status, bio, avatar_url, created_at")
-                        .eq("id", currentUser.id)
-                        .single(),
+            const [
+                profileResult,
+                ideasResult,
+                notificationsResult
+            ] = await Promise.all([
 
-                    supabase
-                        .from("ideas")
-                        .select("*")
-                        .eq("member_id", currentUser.id),
+                supabase
+                    .from("profiles")
+                    .select(`
+                        display_name,
+                        member_code,
+                        status,
+                        bio,
+                        avatar_url,
+                        created_at
+                    `)
+                    .eq("id", currentUser.id)
+                    .single(),
 
-                    supabase
-                        .from("notifications")
-                        .select("*")
-                        .eq("user_id", currentUser.id)
-                ]);
+                supabase
+                    .from("ideas")
+                    .select("id, title, content, created_at")
+                    .eq("member_id", currentUser.id),
+
+                supabase
+                    .from("notifications")
+                    .select("id, title, message, type, is_read, created_at")
+                    .eq("user_id", currentUser.id)
+
+            ]);
 
             if (profileResult.error) throw profileResult.error;
             if (ideasResult.error) throw ideasResult.error;
@@ -1019,9 +1296,11 @@ if (exportDataButton) {
 
             const exportData = {
                 exported_at: new Date().toISOString(),
+
                 account: {
-                    email: currentUser.email
+                    email: currentUser.email || null
                 },
+
                 profile: profileResult.data,
                 ideas: ideasResult.data || [],
                 notifications: notificationsResult.data || []
@@ -1029,20 +1308,22 @@ if (exportDataButton) {
 
             const file = new Blob(
                 [JSON.stringify(exportData, null, 2)],
-                { type: "application/json" }
+                {
+                    type: "application/json"
+                }
             );
 
-            const url = URL.createObjectURL(file);
+            downloadUrl = URL.createObjectURL(file);
+
             const link = document.createElement("a");
 
-            link.href = url;
+            link.href = downloadUrl;
             link.download = "coreI-my-data.json";
 
             document.body.appendChild(link);
+
             link.click();
             link.remove();
-
-            URL.revokeObjectURL(url);
 
             showMessage(
                 exportMessage,
@@ -1059,10 +1340,13 @@ if (exportDataButton) {
             );
 
         } finally {
+            if (downloadUrl) {
+                URL.revokeObjectURL(downloadUrl);
+            }
+
             setButtonLoading(
                 exportDataButton,
                 false,
-                "Export my data",
                 "Preparing..."
             );
         }
@@ -1076,11 +1360,11 @@ if (exportDataButton) {
 
 if (accountDeletionInfoButton && accountDeletionInfo) {
     accountDeletionInfoButton.addEventListener("click", () => {
-        const isHidden = accountDeletionInfo.hidden;
+        const shouldShow = accountDeletionInfo.hidden;
 
-        accountDeletionInfo.hidden = !isHidden;
+        accountDeletionInfo.hidden = !shouldShow;
 
-        accountDeletionInfoButton.textContent = isHidden
+        accountDeletionInfoButton.textContent = shouldShow
             ? "Hide information"
             : "Learn about account deletion";
     });
@@ -1088,46 +1372,331 @@ if (accountDeletionInfoButton && accountDeletionInfo) {
 
 
 // =============================================
-// 20. HELP AND SUPPORT
+// 20. SUPPORT HISTORY ELEMENTS
+// =============================================
+
+// Create support history area
+const supportHistory = document.createElement("div");
+
+supportHistory.id = "mySupportIssues";
+supportHistory.className = "my-support-issues";
+
+supportHistory.innerHTML = `
+    <div class="support-history-heading">
+        <h3>My support reports</h3>
+        <p>Check the status of reports you have sent to coreI.</p>
+    </div>
+
+    <div id="mySupportIssuesList" aria-live="polite">
+        Loading your reports...
+    </div>
+`;
+
+if (supportForm) {
+    supportForm.insertAdjacentElement(
+        "afterend",
+        supportHistory
+    );
+}
+
+const mySupportIssuesList = document.getElementById(
+    "mySupportIssuesList"
+);
+
+
+// Display readable report status
+function getSupportStatus(status) {
+    const statuses = {
+        pending: "Waiting for admin",
+        in_progress: "Being reviewed",
+        resolved: "Resolved"
+    };
+
+    return statuses[status] || "Status unavailable";
+}
+
+
+// =============================================
+// 21. LOAD MY SUPPORT REPORTS
+// =============================================
+
+async function loadMySupportIssues() {
+    if (!currentUser || !mySupportIssuesList) return;
+
+    mySupportIssuesList.textContent =
+        "Loading your reports...";
+
+    try {
+        const { data, error } = await supabase
+            .from("support_issues")
+            .select(`
+                id,
+                subject,
+                category,
+                description,
+                status,
+                admin_reply,
+                created_at,
+                updated_at
+            `)
+            .eq("member_id", currentUser.id)
+            .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        mySupportIssuesList.replaceChildren();
+
+        if (!data || data.length === 0) {
+            mySupportIssuesList.textContent =
+                "You haven't submitted any support reports yet.";
+
+            return;
+        }
+
+        data.forEach(issue => {
+            const card = document.createElement("article");
+
+            card.className = "support-history-card";
+
+            const heading = document.createElement("div");
+
+            heading.className =
+                "support-history-card-heading";
+
+            const title = createTextElement(
+                "h4",
+                "support-history-title",
+                issue.subject
+            );
+
+            const status = createTextElement(
+                "span",
+                `support-status support-status-${issue.status}`,
+                getSupportStatus(issue.status)
+            );
+
+            heading.append(title, status);
+
+            const category = createTextElement(
+                "p",
+                "support-history-category",
+                `Category: ${issue.category}`
+            );
+
+            const description = createTextElement(
+                "p",
+                "support-history-description",
+                issue.description
+            );
+
+            const date = createTextElement(
+                "small",
+                "support-history-date",
+                `Submitted: ${formatDate(issue.created_at)}`
+            );
+
+            card.append(
+                heading,
+                category,
+                description,
+                date
+            );
+
+            if (issue.admin_reply) {
+                const replyBox = document.createElement("div");
+
+                replyBox.className = "support-admin-reply";
+
+                const replyHeading = createTextElement(
+                    "strong",
+                    "",
+                    "Reply from coreI Admin"
+                );
+
+                const replyText = createTextElement(
+                    "p",
+                    "",
+                    issue.admin_reply
+                );
+
+                replyBox.append(
+                    replyHeading,
+                    replyText
+                );
+
+                card.appendChild(replyBox);
+
+            } else {
+                const waiting = createTextElement(
+                    "p",
+                    "support-waiting-message",
+                    "The admin team has not replied yet."
+                );
+
+                card.appendChild(waiting);
+            }
+
+            mySupportIssuesList.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error("Support history loading error:", error);
+
+        mySupportIssuesList.textContent =
+            "Could not load your reports. Please refresh the page.";
+    }
+}
+
+
+// =============================================
+// 22. SUBMIT SUPPORT REPORT
 // =============================================
 
 if (supportForm) {
-    supportForm.addEventListener("submit", event => {
+    supportForm.addEventListener("submit", async event => {
         event.preventDefault();
 
-        showMessage(
-            supportFormMessage,
-            "Support submission is not connected yet. We need a secure support table or server-side service before messages can be sent.",
-            false
+        if (!currentUser) {
+            showMessage(
+                supportFormMessage,
+                "Please sign in before submitting a report."
+            );
+
+            return;
+        }
+
+        const subject =
+            supportSubject?.value.trim() || "";
+
+        const description =
+            supportMessageInput?.value.trim() || "";
+
+        const selectedCategory =
+            supportCategory?.value || "";
+
+        // Older HTML may still contain security.
+        // Convert it to the database-supported bug category.
+        const category =
+            selectedCategory === "security"
+                ? "bug"
+                : selectedCategory;
+
+        if (subject.length < 3 || subject.length > 150) {
+            showMessage(
+                supportFormMessage,
+                "Your subject must contain between 3 and 150 characters."
+            );
+
+            return;
+        }
+
+        if (!ALLOWED_SUPPORT_CATEGORIES.includes(category)) {
+            showMessage(
+                supportFormMessage,
+                "Please select a valid report category."
+            );
+
+            return;
+        }
+
+        if (
+            description.length < 10 ||
+            description.length > 5000
+        ) {
+            showMessage(
+                supportFormMessage,
+                "Your description must contain between 10 and 5000 characters."
+            );
+
+            return;
+        }
+
+        setButtonLoading(
+            submitSupportButton,
+            true,
+            "Sending..."
         );
+
+        try {
+            const { error } = await supabase
+                .from("support_issues")
+                .insert({
+                    member_id: currentUser.id,
+                    subject: subject,
+                    category: category,
+                    description: description
+                });
+
+            if (error) throw error;
+
+            supportForm.reset();
+
+            showMessage(
+                supportFormMessage,
+                "Your report has been sent successfully. The coreI admin team can now review it.",
+                true
+            );
+
+            await loadMySupportIssues();
+
+        } catch (error) {
+            console.error("Support submission error:", error);
+
+            showMessage(
+                supportFormMessage,
+                error.message ||
+                "Your report could not be sent. Please try again."
+            );
+
+        } finally {
+            setButtonLoading(
+                submitSupportButton,
+                false,
+                "Sending..."
+            );
+        }
     });
 }
 
 
 // =============================================
-// 21. SEARCH KEYBOARD SHORTCUT
+// 23. SEARCH KEYBOARD SHORTCUT
 // =============================================
 
 document.addEventListener("keydown", event => {
-    const isSearchShortcut =
+    const searchShortcut =
         (event.ctrlKey || event.metaKey) &&
         event.key.toLowerCase() === "k";
 
-    if (isSearchShortcut && settingsSearch) {
+    if (searchShortcut && settingsSearch) {
         event.preventDefault();
+
         settingsSearch.focus();
     }
 
     if (event.key === "Escape" && settingsSearch) {
         settingsSearch.value = "";
+
         filterSettings();
+
         settingsSearch.blur();
     }
 });
 
 
 // =============================================
-// 22. SIGN OUT
+// 24. CLEAN UP PHOTO PREVIEW
+// =============================================
+
+window.addEventListener("beforeunload", () => {
+    if (previewObjectUrl) {
+        URL.revokeObjectURL(previewObjectUrl);
+    }
+});
+
+
+// =============================================
+// 25. SIGN OUT
 // =============================================
 
 if (logoutButton) {
@@ -1135,7 +1704,6 @@ if (logoutButton) {
         setButtonLoading(
             logoutButton,
             true,
-            "Sign out",
             "Signing out..."
         );
 
@@ -1144,10 +1712,10 @@ if (logoutButton) {
 
             if (error) throw error;
 
-            window.location.href = "./login.html";
+            window.location.replace("./login.html");
 
         } catch (error) {
-            console.error("Logout error:", error);
+            console.error("Sign out error:", error);
 
             showMessage(
                 logoutMessage,
@@ -1157,7 +1725,6 @@ if (logoutButton) {
             setButtonLoading(
                 logoutButton,
                 false,
-                "Sign out",
                 "Signing out..."
             );
         }
@@ -1166,7 +1733,9 @@ if (logoutButton) {
 
 
 // =============================================
-// 23. START SETTINGS PAGE
+// 26. START SETTINGS
 // =============================================
 
 loadSettings();
+
+console.log("coreI Settings system loaded successfully.");
