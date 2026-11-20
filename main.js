@@ -1,19 +1,26 @@
-
 import { supabase } from "./supabase.js";
+
 
 // =============================================
 // 1. PAGE ELEMENTS
 // =============================================
 
+// Header
+const guestActions = document.getElementById("guestActions");
+const memberActions = document.getElementById("memberActions");
+const logoutButton = document.getElementById("logoutButton");
+
 // Main sections
 const homeSection = document.getElementById("homeSection");
 
-// Personal welcome
+// Welcome
 const personalGreeting = document.getElementById("personalGreeting");
 const personalWelcomeMessage = document.getElementById("personalWelcomeMessage");
 
 // Idea form
 const ideaForm = document.getElementById("ideaForm");
+const ideaFormCard = document.getElementById("ideaFormCard");
+const loginPrompt = document.getElementById("loginPrompt");
 const ideaTitle = document.getElementById("ideaTitle");
 const ideaContent = document.getElementById("ideaContent");
 const ideaFormMessage = document.getElementById("ideaFormMessage");
@@ -49,7 +56,24 @@ let currentProfile = null;
 
 
 // =============================================
-// 3. THEME SWITCHER
+// 3. HEADER
+// =============================================
+
+function updateHeader(isLoggedIn) {
+
+    if (guestActions) {
+        guestActions.hidden = isLoggedIn;
+    }
+
+    if (memberActions) {
+        memberActions.hidden = !isLoggedIn;
+    }
+
+}
+
+
+// =============================================
+// 4. THEME SWITCHER
 // =============================================
 
 const systemTheme = window.matchMedia
@@ -57,7 +81,6 @@ const systemTheme = window.matchMedia
     : null;
 
 
-// Read the saved theme preference.
 function getSavedTheme() {
 
     try {
@@ -79,7 +102,6 @@ function getSavedTheme() {
 }
 
 
-// Decide which theme should be displayed.
 function getActiveTheme(preference) {
 
     if (preference === "light" || preference === "dark") {
@@ -91,7 +113,6 @@ function getActiveTheme(preference) {
 }
 
 
-// Apply the selected theme.
 function applyTheme(preference = getSavedTheme()) {
 
     const activeTheme = getActiveTheme(preference);
@@ -101,7 +122,6 @@ function applyTheme(preference = getSavedTheme()) {
         activeTheme === "dark"
     );
 
-    // Update theme button.
     if (themeToggleButton) {
 
         const icon = themeToggleButton.querySelector("i");
@@ -123,7 +143,6 @@ function applyTheme(preference = getSavedTheme()) {
 
     }
 
-    // Update browser theme colour.
     const themeColor = document.querySelector(
         'meta[name="theme-color"]'
     );
@@ -139,11 +158,11 @@ function applyTheme(preference = getSavedTheme()) {
 }
 
 
-// Apply the saved theme when the page opens.
+// Apply saved theme.
 applyTheme();
 
 
-// Switch between light and dark.
+// Change theme.
 if (themeToggleButton) {
 
     themeToggleButton.addEventListener("click", () => {
@@ -158,7 +177,6 @@ if (themeToggleButton) {
 
         try {
 
-            // Save the user's new preference.
             localStorage.setItem("coreI-theme", newTheme);
 
         } catch (error) {
@@ -174,8 +192,7 @@ if (themeToggleButton) {
 }
 
 
-// Update the page if the device theme changes
-// and the saved preference is System.
+// Follow system theme when no manual preference is saved.
 if (systemTheme) {
 
     systemTheme.addEventListener("change", () => {
@@ -190,10 +207,9 @@ if (systemTheme) {
 
 
 // =============================================
-// 4. HELPER FUNCTIONS
+// 5. HELPER FUNCTIONS
 // =============================================
 
-// Display a message.
 function showMessage(element, message, type = "") {
 
     if (!element) return;
@@ -208,7 +224,6 @@ function showMessage(element, message, type = "") {
 }
 
 
-// Format dates.
 function formatDate(date) {
 
     if (!date) return "";
@@ -228,15 +243,12 @@ function formatDate(date) {
 }
 
 
-// Create an empty message.
 function createEmptyMessage(message) {
 
     const container = document.createElement("div");
-
     container.className = "empty-card";
 
     const paragraph = document.createElement("p");
-
     paragraph.textContent = message;
 
     container.appendChild(paragraph);
@@ -246,7 +258,6 @@ function createEmptyMessage(message) {
 }
 
 
-// Create an element with safe text.
 function createTextElement(tagName, className, text) {
 
     const element = document.createElement(tagName);
@@ -262,7 +273,6 @@ function createTextElement(tagName, className, text) {
 }
 
 
-// Get today's date as a number.
 function getTodayKey() {
 
     const today = new Date();
@@ -275,7 +285,7 @@ function getTodayKey() {
 
 
 // =============================================
-// 5. PERSONAL WELCOME
+// 6. PERSONAL WELCOME
 // =============================================
 
 function updatePersonalWelcome(profile) {
@@ -300,20 +310,34 @@ function updatePersonalWelcome(profile) {
 
     }
 
+    // Show a general welcome to visitors.
+    if (!profile) {
+
+        personalGreeting.textContent = "Welcome to coreI!";
+
+        personalWelcomeMessage.textContent =
+            "Every day is an opportunity to discover something new. " +
+            "Explore your interests, discover ideas and connect with different perspectives.";
+
+        return;
+
+    }
+
     const displayName =
-        profile?.display_name?.trim() || "Explorer";
+        profile.display_name?.trim() || "Explorer";
 
     personalGreeting.textContent =
         `${greeting}, ${displayName}!`;
 
     personalWelcomeMessage.textContent =
-        "Every day is an opportunity to discover something new. Explore your interests, share your thoughts and connect with others.";
+        "Every day is an opportunity to discover something new. " +
+        "Explore your interests, share your thoughts and connect with others.";
 
 }
 
 
 // =============================================
-// 6. IDEA OF THE DAY
+// 7. IDEA OF THE DAY
 // =============================================
 
 const dailyIdeas = [
@@ -333,7 +357,7 @@ const dailyIdeas = [
     {
         category: "CREATIVITY",
         title: "Your next great idea might start with a question.",
-        description: "Explore different possibilities and give yourself the freedom to think differently."
+        description: "Explore different possibilities and think differently."
     },
 
     {
@@ -400,7 +424,6 @@ function updateIdeaOfTheDay() {
     if (!ideaContainer) return;
 
     const ideaIndex = getTodayKey() % dailyIdeas.length;
-
     const selectedIdea = dailyIdeas[ideaIndex];
 
     ideaContainer.innerHTML = "";
@@ -433,14 +456,13 @@ function updateIdeaOfTheDay() {
 
 
 // =============================================
-// 7. PAGE NAVIGATION
+// 8. PAGE NAVIGATION
 // =============================================
 
 function openSection(sectionId) {
 
     const targetSection = document.getElementById(sectionId);
 
-    // Only open sections that exist on this page.
     if (
         !targetSection ||
         !targetSection.classList.contains("page-section")
@@ -448,17 +470,14 @@ function openSection(sectionId) {
         return;
     }
 
-    // Hide all page sections.
     document.querySelectorAll(".page-section").forEach(section => {
 
         section.classList.remove("active");
 
     });
 
-    // Show selected section.
     targetSection.classList.add("active");
 
-    // Update navigation buttons.
     document.querySelectorAll(".nav-button[data-page]").forEach(button => {
 
         button.classList.toggle(
@@ -468,12 +487,10 @@ function openSection(sectionId) {
 
     });
 
-    // Close notifications.
     if (notificationPanel) {
         notificationPanel.hidden = true;
     }
 
-    // Return to the top.
     window.scrollTo({
         top: 0,
         behavior: "smooth"
@@ -482,12 +499,11 @@ function openSection(sectionId) {
 }
 
 
-// Handle buttons that open sections.
+// Handle section navigation.
 document.querySelectorAll("[data-page]").forEach(button => {
 
     button.addEventListener("click", event => {
 
-        // Do not intercept normal links.
         if (button.tagName === "A") return;
 
         event.preventDefault();
@@ -499,21 +515,20 @@ document.querySelectorAll("[data-page]").forEach(button => {
 });
 
 
-// Open Home when main.html loads.
+// Open Home by default.
 if (homeSection) {
     openSection("homeSection");
 }
 
 
 // =============================================
-// 8. CHECK MEMBER ACCESS
+// 9. CHECK LOGIN STATUS
 // =============================================
 
 async function checkMemberAccess() {
 
     try {
 
-        // Get signed-in user.
         const { data: userData, error: userError } =
             await supabase.auth.getUser();
 
@@ -526,8 +541,15 @@ async function checkMemberAccess() {
 
             currentProfile = null;
 
+            updateHeader(false);
+            updatePersonalWelcome(null);
+
             if (ideaForm) {
                 ideaForm.hidden = true;
+            }
+
+            if (loginPrompt) {
+                loginPrompt.hidden = false;
             }
 
             if (notificationButton) {
@@ -538,45 +560,76 @@ async function checkMemberAccess() {
 
         }
 
-        // Get member profile.
-        const { data: profile, error: profileError } = await supabase
-            .from("profiles")
-            .select(`
-                display_name,
-                member_code,
-                status,
-                role,
-                bio,
-                avatar_url
-            `)
-            .eq("id", currentUser.id)
-            .single();
+
+        // Anonymous accounts are not normal registered accounts.
+        if (currentUser.is_anonymous) {
+
+            currentProfile = null;
+
+            updateHeader(false);
+            updatePersonalWelcome(null);
+
+            if (ideaForm) {
+                ideaForm.hidden = true;
+            }
+
+            if (loginPrompt) {
+                loginPrompt.hidden = false;
+            }
+
+            if (notificationButton) {
+                notificationButton.disabled = true;
+            }
+
+            return false;
+
+        }
+
+
+        // Get the registered user's profile.
+        const { data: profile, error: profileError } =
+            await supabase
+                .from("profiles")
+                .select(`
+                    display_name,
+                    member_code,
+                    status,
+                    role,
+                    bio,
+                    avatar_url
+                `)
+                .eq("id", currentUser.id)
+                .single();
 
         if (profileError) throw profileError;
 
         currentProfile = profile;
 
-        // Update welcome message.
+        updateHeader(true);
         updatePersonalWelcome(profile);
 
-        // Check membership approval.
-        const isApproved = profile.status === "approved";
 
-        // Show or hide member features.
+        // A rejected account cannot publish.
+        // Normal registered accounts do not need admin approval.
+        const canPublish = profile.status !== "rejected";
+
         if (ideaForm) {
-            ideaForm.hidden = !isApproved;
+            ideaForm.hidden = !canPublish;
+        }
+
+        if (loginPrompt) {
+            loginPrompt.hidden = true;
         }
 
         if (notificationButton) {
-            notificationButton.disabled = !isApproved;
+            notificationButton.disabled = !canPublish;
         }
 
-        // Pending membership.
-        if (!isApproved) {
+        if (!canPublish) {
 
             showMessage(
                 ideaFormMessage,
-                "Your membership is waiting for approval.",
+                "This account cannot currently publish ideas.",
                 "error"
             );
 
@@ -588,21 +641,24 @@ async function checkMemberAccess() {
 
     } catch (error) {
 
-        console.error("Member access error:", error);
+        console.error("Login status error:", error);
 
         currentUser = null;
         currentProfile = null;
+
+        updateHeader(false);
+        updatePersonalWelcome(null);
 
         if (ideaForm) {
             ideaForm.hidden = true;
         }
 
-        if (notificationButton) {
-            notificationButton.disabled = true;
+        if (loginPrompt) {
+            loginPrompt.hidden = false;
         }
 
-        if (personalGreeting) {
-            personalGreeting.textContent = "Welcome to coreI!";
+        if (notificationButton) {
+            notificationButton.disabled = true;
         }
 
         return false;
@@ -613,45 +669,43 @@ async function checkMemberAccess() {
 
 
 // =============================================
-// 9. CREATE COMMUNITY IDEA CARD
+// 10. CREATE COMMUNITY IDEA CARD
 // =============================================
 
 function createIdeaCard(idea) {
 
     const card = document.createElement("article");
-
     card.className = "idea-card";
+
 
     // Get author profile.
     const author = Array.isArray(idea.profiles)
         ? idea.profiles[0]
         : idea.profiles;
 
-    // Author area.
-    const authorContainer = document.createElement("div");
 
+    // Author section.
+    const authorContainer = document.createElement("div");
     authorContainer.className = "idea-author";
 
-    // Author photo.
+
+    // Author image.
     const avatar = document.createElement("img");
 
     avatar.className = "idea-author-photo";
-
     avatar.src = author?.avatar_url || DEFAULT_AVATAR;
-
     avatar.alt = "Member profile photo";
 
     avatar.onerror = () => {
 
         avatar.onerror = null;
-
         avatar.src = DEFAULT_AVATAR;
 
     };
 
-    // Author details.
-    const authorDetails = document.createElement("div");
 
+    // Author name.
+    const authorDetails = document.createElement("div");
     authorDetails.className = "idea-author-details";
 
     const authorName = createTextElement(
@@ -678,6 +732,7 @@ function createIdeaCard(idea) {
         authorDetails
     );
 
+
     // Date.
     const date = createTextElement(
         "small",
@@ -685,45 +740,61 @@ function createIdeaCard(idea) {
         formatDate(idea.created_at)
     );
 
-    // Title.
+
+    // Idea title.
     const title = createTextElement(
         "h3",
         "",
         idea.title
     );
 
-    // Content.
+
+    // Idea content.
     const content = createTextElement(
         "p",
         "idea-content",
         idea.content
     );
 
-    // Actions.
-    const actions = document.createElement("div");
 
+    // Action buttons.
+    const actions = document.createElement("div");
     actions.className = "idea-actions";
+
 
     // Star information.
     const stars = idea.idea_stars || [];
 
-    const hasStarred = stars.some(star => {
+    const hasStarred = currentUser
+        ? stars.some(star => star.member_id === currentUser.id)
+        : false;
 
-        return star.member_id === currentUser.id;
-
-    });
 
     // Star button.
     const starButton = document.createElement("button");
 
     starButton.className = "star-button";
-
     starButton.type = "button";
 
     starButton.textContent =
         `${hasStarred ? "★ Starred" : "☆ Star"} (${stars.length})`;
 
+    if (!currentUser || currentUser.is_anonymous) {
+        starButton.title = "Sign in to react to this idea";
+    }
+
     starButton.addEventListener("click", async () => {
+
+        // Require a normal signed-in account for this action.
+        if (!currentUser || currentUser.is_anonymous) {
+
+            alert("Please log in before reacting to an idea.");
+
+            window.location.href = "./login.html";
+
+            return;
+
+        }
 
         starButton.disabled = true;
 
@@ -731,7 +802,6 @@ function createIdeaCard(idea) {
 
             if (hasStarred) {
 
-                // Remove star.
                 const { error } = await supabase
                     .from("idea_stars")
                     .delete()
@@ -742,7 +812,6 @@ function createIdeaCard(idea) {
 
             } else {
 
-                // Add star.
                 const { error } = await supabase
                     .from("idea_stars")
                     .insert({
@@ -760,7 +829,7 @@ function createIdeaCard(idea) {
 
             console.error("Star error:", error);
 
-            alert("Unable to update your star. Please try again.");
+            alert("Unable to update your reaction. Please try again.");
 
             starButton.disabled = false;
 
@@ -770,19 +839,20 @@ function createIdeaCard(idea) {
 
     actions.appendChild(starButton);
 
-    // Check whether the current member owns the idea or is an admin.
-    const isOwner = idea.member_id === currentUser.id;
 
-    const isAdmin = currentProfile?.role === "admin";
+    // Owner or admin can delete an idea.
+    const isOwner =
+        currentUser && idea.member_id === currentUser.id;
+
+    const isAdmin =
+        currentProfile?.role === "admin";
 
     if (isOwner || isAdmin) {
 
         const deleteButton = document.createElement("button");
 
         deleteButton.className = "delete-idea-button";
-
         deleteButton.type = "button";
-
         deleteButton.textContent = "Delete";
 
         deleteButton.addEventListener("click", async () => {
@@ -822,7 +892,7 @@ function createIdeaCard(idea) {
 
     }
 
-    // Assemble card.
+
     card.append(
         authorContainer,
         date,
@@ -837,15 +907,31 @@ function createIdeaCard(idea) {
 
 
 // =============================================
-// 10. LOAD COMMUNITY IDEAS
+// 11. LOAD COMMUNITY IDEAS
 // =============================================
 
 async function loadIdeas() {
 
-    if (!currentUser || !currentProfile) return;
+    if (!ideasList && !featuredIdeasList) return;
 
     try {
 
+        if (ideasList) {
+            ideasList.innerHTML = "";
+            ideasList.appendChild(
+                createEmptyMessage("Loading community ideas...")
+            );
+        }
+
+        if (featuredIdeasList) {
+            featuredIdeasList.innerHTML = "";
+            featuredIdeasList.appendChild(
+                createEmptyMessage("Loading shared ideas...")
+            );
+        }
+
+
+        // Load ideas without requiring a login.
         const { data: ideas, error } = await supabase
             .from("ideas")
             .select(`
@@ -869,7 +955,7 @@ async function loadIdeas() {
 
         if (error) throw error;
 
-        // Clear old content.
+
         if (ideasList) {
             ideasList.innerHTML = "";
         }
@@ -878,7 +964,8 @@ async function loadIdeas() {
             featuredIdeasList.innerHTML = "";
         }
 
-        // No ideas available.
+
+        // No ideas yet.
         if (!ideas || ideas.length === 0) {
 
             if (ideasList) {
@@ -905,6 +992,7 @@ async function loadIdeas() {
 
         }
 
+
         // Display all ideas in Express.
         if (ideasList) {
 
@@ -918,7 +1006,8 @@ async function loadIdeas() {
 
         }
 
-        // Display the latest three on Home.
+
+        // Display the latest three ideas on Home.
         if (featuredIdeasList) {
 
             ideas.slice(0, 3).forEach(idea => {
@@ -941,7 +1030,7 @@ async function loadIdeas() {
 
             ideasList.appendChild(
                 createEmptyMessage(
-                    "Unable to load ideas. Please refresh the page."
+                    "Unable to load ideas. Please check your connection or refresh the page."
                 )
             );
 
@@ -965,7 +1054,7 @@ async function loadIdeas() {
 
 
 // =============================================
-// 11. PUBLISH NEW IDEA
+// 12. PUBLISH NEW IDEA
 // =============================================
 
 if (ideaForm) {
@@ -974,15 +1063,18 @@ if (ideaForm) {
 
         event.preventDefault();
 
-        // Check membership.
+
+        // Only normal registered users can publish.
         if (
             !currentUser ||
-            currentProfile?.status !== "approved"
+            currentUser.is_anonymous ||
+            !currentProfile ||
+            currentProfile.status === "rejected"
         ) {
 
             showMessage(
                 ideaFormMessage,
-                "You need an approved membership to share ideas.",
+                "Please log in with a registered account before sharing ideas.",
                 "error"
             );
 
@@ -990,10 +1082,10 @@ if (ideaForm) {
 
         }
 
-        // Get form values.
-        const title = ideaTitle?.value.trim() || "";
 
+        const title = ideaTitle?.value.trim() || "";
         const content = ideaContent?.value.trim() || "";
+
 
         // Validate title.
         if (title.length < 3 || title.length > 120) {
@@ -1008,6 +1100,7 @@ if (ideaForm) {
 
         }
 
+
         // Validate content.
         if (content.length < 10 || content.length > 5000) {
 
@@ -1021,16 +1114,17 @@ if (ideaForm) {
 
         }
 
-        // Disable button while sharing.
+
+        // Disable button while publishing.
         if (publishIdeaButton) {
 
             publishIdeaButton.disabled = true;
-
             publishIdeaButton.textContent = "Sharing...";
 
         }
 
         showMessage(ideaFormMessage, "");
+
 
         try {
 
@@ -1044,17 +1138,19 @@ if (ideaForm) {
 
             if (error) throw error;
 
-            // Clear form.
+
+            // Clear the form.
             ideaForm.reset();
 
-            // Show success message.
+
             showMessage(
                 ideaFormMessage,
                 "Your idea has been shared successfully!",
                 "success"
             );
 
-            // Refresh ideas.
+
+            // Refresh community ideas.
             await loadIdeas();
 
         } catch (error) {
@@ -1063,7 +1159,7 @@ if (ideaForm) {
 
             showMessage(
                 ideaFormMessage,
-                "Unable to share your idea. Please try again.",
+                "Unable to share your idea. Your account may not have permission yet.",
                 "error"
             );
 
@@ -1086,19 +1182,22 @@ if (ideaForm) {
 
 
 // =============================================
-// 12. LOAD NOTIFICATIONS
+// 13. LOAD NOTIFICATIONS
 // =============================================
 
 async function loadNotifications() {
 
     if (
         !currentUser ||
-        currentProfile?.status !== "approved"
+        currentUser.is_anonymous ||
+        !currentProfile ||
+        currentProfile.status === "rejected"
     ) {
         return;
     }
 
     if (!notificationList) return;
+
 
     try {
 
@@ -1119,9 +1218,11 @@ async function loadNotifications() {
 
         if (error) throw error;
 
+
         const notificationItems = notifications || [];
 
         notificationList.innerHTML = "";
+
 
         // Count unread notifications.
         const unreadCount = notificationItems.filter(item => {
@@ -1130,14 +1231,14 @@ async function loadNotifications() {
 
         }).length;
 
-        // Update notification badge.
+
         if (notificationCount) {
 
             notificationCount.textContent = unreadCount;
-
             notificationCount.hidden = unreadCount === 0;
 
         }
+
 
         // Empty state.
         if (notificationItems.length === 0) {
@@ -1152,6 +1253,7 @@ async function loadNotifications() {
 
         }
 
+
         // Display notifications.
         notificationItems.forEach(notification => {
 
@@ -1162,6 +1264,7 @@ async function loadNotifications() {
             if (!notification.is_read) {
                 card.classList.add("unread");
             }
+
 
             const title = createTextElement(
                 "h3",
@@ -1187,12 +1290,14 @@ async function loadNotifications() {
                 notification.is_read ? "Read" : "New"
             );
 
+
             card.append(
                 title,
                 message,
                 date,
                 status
             );
+
 
             // Mark as read when clicked.
             card.addEventListener("click", async () => {
@@ -1213,20 +1318,19 @@ async function loadNotifications() {
 
                     if (updateError) throw updateError;
 
+
                     notification.is_read = true;
 
                     card.classList.remove("unread");
-
                     status.textContent = "Read";
 
-                    // Update unread count.
+
                     const remainingUnread =
                         notificationItems.filter(item => !item.is_read).length;
 
                     if (notificationCount) {
 
                         notificationCount.textContent = remainingUnread;
-
                         notificationCount.hidden = remainingUnread === 0;
 
                     }
@@ -1242,6 +1346,7 @@ async function loadNotifications() {
                 }
 
             });
+
 
             notificationList.appendChild(card);
 
@@ -1265,10 +1370,9 @@ async function loadNotifications() {
 
 
 // =============================================
-// 13. NOTIFICATION PANEL CONTROLS
+// 14. NOTIFICATION PANEL CONTROLS
 // =============================================
 
-// Open notification panel.
 if (notificationButton) {
 
     notificationButton.addEventListener("click", async () => {
@@ -1280,9 +1384,7 @@ if (notificationButton) {
         notificationPanel.hidden = !notificationPanel.hidden;
 
         if (!notificationPanel.hidden) {
-
             await loadNotifications();
-
         }
 
     });
@@ -1290,7 +1392,6 @@ if (notificationButton) {
 }
 
 
-// Close notification panel.
 if (closeNotifications) {
 
     closeNotifications.addEventListener("click", () => {
@@ -1304,7 +1405,7 @@ if (closeNotifications) {
 }
 
 
-// Close panel when clicking outside.
+// Close notifications when clicking outside.
 document.addEventListener("click", event => {
 
     if (!notificationPanel || notificationPanel.hidden) return;
@@ -1321,23 +1422,22 @@ document.addEventListener("click", event => {
 
 
 // =============================================
-// 14. LOAD ANNOUNCEMENTS
+// 15. LOAD ANNOUNCEMENTS
 // =============================================
 
 async function loadAnnouncements() {
 
     if (!announcementsList) return;
 
-    // Show loading message.
     announcementsList.innerHTML = "";
 
     announcementsList.appendChild(
         createEmptyMessage("Loading announcements...")
     );
 
+
     try {
 
-        // Fetch published announcements.
         const { data: announcements, error } = await supabase
             .from("announcements")
             .select(`
@@ -1354,14 +1454,15 @@ async function loadAnnouncements() {
 
         if (error) throw error;
 
+
         announcementsList.innerHTML = "";
 
-        // No announcements.
+
         if (!announcements || announcements.length === 0) {
 
             announcementsList.appendChild(
                 createEmptyMessage(
-                    "No announcements have been published yet. Check back soon for updates!"
+                    "No announcements have been published yet. Check back soon!"
                 )
             );
 
@@ -1369,12 +1470,13 @@ async function loadAnnouncements() {
 
         }
 
-        // Display announcements.
+
         announcements.forEach(announcement => {
 
             const card = document.createElement("article");
 
             card.className = "announcement-card";
+
 
             const title = createTextElement(
                 "h3",
@@ -1393,6 +1495,7 @@ async function loadAnnouncements() {
                 "announcement-date",
                 formatDate(announcement.created_at)
             );
+
 
             card.append(
                 title,
@@ -1422,34 +1525,72 @@ async function loadAnnouncements() {
 
 
 // =============================================
-// 15. START APPLICATION
+// 16. SIGN OUT
 // =============================================
 
-async function startApplication() {
+if (logoutButton) {
 
-    // Display the daily idea.
-    updateIdeaOfTheDay();
+    logoutButton.addEventListener("click", async () => {
 
-    // Load announcements.
-    await loadAnnouncements();
+        const confirmed = confirm(
+            "Are you sure you want to sign out?"
+        );
 
-    // Check member access.
-    const hasAccess = await checkMemberAccess();
+        if (!confirmed) return;
 
-    // Stop if membership is not approved.
-    if (!hasAccess) return;
+        logoutButton.disabled = true;
 
-    // Load member features.
-    await Promise.all([
-        loadIdeas(),
-        loadNotifications()
-    ]);
+        try {
+
+            const { error } = await supabase.auth.signOut();
+
+            if (error) throw error;
+
+            window.location.replace("./main.html");
+
+        } catch (error) {
+
+            console.error("Sign out error:", error);
+
+            alert("Unable to sign out. Please try again.");
+
+            logoutButton.disabled = false;
+
+        }
+
+    });
 
 }
 
 
 // =============================================
-// 16. START COREI
+// 17. START APPLICATION
+// =============================================
+
+async function startApplication() {
+
+    // Display today's idea.
+    updateIdeaOfTheDay();
+
+    // Check login status.
+    const canUseMemberFeatures = await checkMemberAccess();
+
+    // Public content loads for visitors too.
+    await Promise.all([
+        loadAnnouncements(),
+        loadIdeas()
+    ]);
+
+    // Personal notifications need a registered account.
+    if (canUseMemberFeatures) {
+        await loadNotifications();
+    }
+
+}
+
+
+// =============================================
+// 18. START COREI
 // =============================================
 
 startApplication();
